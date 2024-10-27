@@ -3,15 +3,20 @@ import axios from "axios";
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({
-    users: [], // Liste des utilisateurs
-    user: null // Utilisateur sélectionné pour modification ou visualisation
+    users: [],
+    user: {
+      nom: "",
+      email: "",
+      role: ""
+    }
   }),
 
   actions: {
-    // Charger la liste des utilisateurs
     async loadUserData() {
       try {
-        const response = await axios.get("http://127.0.0.1:3000/utilisateurs"); // Change cette URL si nécessaire
+        const response = await axios.get(
+          "http://localhost:3000/api/utilisateurs"
+        );
         this.users = response.data;
       } catch (error) {
         console.error(
@@ -20,23 +25,77 @@ export const useUserStore = defineStore("userStore", {
         );
       }
     },
+    async loadUserById(id) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/utilisateurs/${id}`
+        );
+        const userData = response.data;
+        this.user = {
+          nom: userData.nom,
+          email: userData.email,
+          role: userData.role
+        };
+        console.log("Données utilisateur récupérées:", this.user);
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement de l'utilisateur :",
+          error.message
+        );
+      }
+    },
+    async addUser(newUser) {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/api/utilisateurs",
+          newUser
+        );
+        if (response.status !== 200 && response.status !== 201) {
+          throw new Error("L'ajout a échoué.");
+        }
+        this.loadUserData();
+      } catch (error) {
+        console.error(
+          "Erreur lors de l'ajout de l'utilisateur :",
+          error.response?.data || error.message
+        );
+        throw error;
+      }
+    },    
 
-    // Supprimer un utilisateur
+    async updateUser(id, updatedUser) {
+      try {
+        const response = await axios.put(
+          `http://localhost:3000/api/utilisateurs/${id}`,
+          updatedUser
+        );
+
+        if (response.status !== 200) {
+          throw new Error("La mise à jour a échoué.");
+        }
+
+        this.loadUserData();
+      } catch (error) {
+        console.error(
+          "Erreur lors de la mise à jour de l'utilisateur :",
+          error.message
+        );
+        throw error;
+      }
+    },
+
     async removeUser(id) {
       try {
-        await axios.delete(`http://127.0.0.1:3000/utilisateurs/${id}`);
-        this.loadUserData(); // Recharger la liste après suppression
+        await axios.delete(`http://localhost:3000/api/utilisateurs/${id}`);
+        this.loadUserData();
       } catch (error) {
         console.error(
           "Erreur lors de la suppression de l'utilisateur :",
           error.message
         );
       }
-    },
-
-    // Sélectionner un utilisateur
-    getUser(user) {
-      this.user = user;
     }
-  }
+  },
+
+  persist: true
 });

@@ -1,17 +1,11 @@
 <template>
     <div class="form-container d-flex align-items-center">
-        <!-- Icône à gauche du formulaire -->
-        <!-- <div class="icon-container">
-            <i class="fas fa-user"></i>
-        </div> -->
-
-        <!-- Formulaire à droite de l'icône -->
         <div class="form-content">
             <h2 class="text-center mb-4">Ajouter un utilisateur</h2>
             <form @submit.prevent="addUser" class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
-                    <input type="text" v-model="name" class="form-control" placeholder="Entrez le nom" required />
+                    <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom" required />
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
@@ -21,10 +15,16 @@
                 <div class="form-group mb-4">
                     <label for="role" class="form-label">Rôle</label>
                     <select v-model="role" class="form-control" required>
-                        <option value="ADMIN">Admin</option>
-                        <option value="USER">Utilisateur</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="GESTIONNAIRE">GESTIONNAIRE</option>
                     </select>
                 </div>
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <input type="password" v-model="password" class="form-control" placeholder="Entrez le mot de passe"
+                        required />
+                </div>
+
                 <button type="submit" class="btn w-100 py-2">Ajouter l'utilisateur</button>
             </form>
         </div>
@@ -32,6 +32,36 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { useUserStore } from '@/stores/useUserStore';
+import { useToast } from 'vue-toastification';
+import { useRouter } from "vue-router";
+
+const toast = useToast();
+const route = useRouter();
+
+const nom = ref('');
+const email = ref('');
+const password = ref('');
+const role = ref('GESTIONNAIRE');
+
+const userStore = useUserStore();
+
+const addUser = async () => {
+    try {
+        await userStore.addUser({
+            nom: nom.value,
+            email: email.value,
+            role: role.value,
+            password: password.value
+        });
+        toast.success('Utilisateur ajouté avec succès !');
+        route.push("/dashboard/utilisateurs");
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de l'utilisateur :", error.message);
+        // toast.error('Une erreur est survenue lors de l\'ajout.');
+    }
+};
 
 </script>
 
@@ -44,12 +74,6 @@
     align-items: center;
     justify-content: center;
 }
-
-/* .icon-container {
-    font-size: 100px;
-    color: #007bff;
-    margin-right: 40px;
-} */
 
 .form-content {
     flex: 1;

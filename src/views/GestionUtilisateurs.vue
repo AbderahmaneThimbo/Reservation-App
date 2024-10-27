@@ -17,8 +17,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(user, index) in filteredUsers" :key="user.id">
-                    <td>{{ user.name }}</td>
+                <tr v-for="(user, index) in users" :key="user.id">
+                    <td>{{ user.nom }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.role }}</td>
                     <td class="actions">
@@ -28,7 +28,7 @@
                         <router-link :to="`/dashboard/utilisateurs/modifier/${user.id}`" class="action-btn">
                             <i class="fas fa-edit"></i>
                         </router-link>
-                        <button class="action-btn" @click="removeUser(user.id)">
+                        <button class="action-btn" @click="confirmRemoveUser(user.id)">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -39,32 +39,31 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
+import { useUserStore } from '@/stores/useUserStore';
+import { useToast } from 'vue-toastification';
 
-const searchQuery = ref('');
-const users = ref([
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Agent' },
-    { id: 3, name: 'Michael Brown', email: 'michael@example.com', role: 'User' },
-    { id: 4, name: 'Sara Wilson', email: 'sara@example.com', role: 'Agent' },
-]);
+const userStore = useUserStore();
+const toast = useToast();
 
-const filteredUsers = computed(() => {
-    return users.value.filter(user =>
-        user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+onMounted(() => {
+    userStore.loadUserData();
 });
 
-const router = useRouter();
-
-const removeUser = (id) => {
+const confirmRemoveUser = (id) => {
     const confirmed = confirm('Voulez-vous vraiment supprimer cet utilisateur ?');
     if (confirmed) {
-        users.value = users.value.filter(user => user.id !== id); // Suppression locale pour tester
+        userStore.removeUser(id).then(() => {
+            toast.success('Utilisateur supprimer avec succès !');
+            userStore.loadUserData();
+        }).catch(error => {
+            console.error("Erreur lors de la suppression:", error.message);
+        });
     }
 };
+const users = userStore.users; 
 </script>
+
 
 
 <style scoped>

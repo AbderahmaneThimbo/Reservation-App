@@ -2,10 +2,10 @@
     <div class="form-container d-flex align-items-center">
         <div class="form-content">
             <h2 class="text-center mb-4">Modifier l'utilisateur</h2>
-            <form @submit.prevent="addUser" class="p-4 shadow-sm bg-white rounded">
+            <form @submit.prevent="updateUser" class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
-                    <input type="text" v-model="name" class="form-control" placeholder="Entrez le nom" required />
+                    <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom" required />
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
@@ -15,8 +15,8 @@
                 <div class="form-group mb-4">
                     <label for="role" class="form-label">Rôle</label>
                     <select v-model="role" class="form-control" required>
-                        <option value="ADMIN">Admin</option>
-                        <option value="USER">Utilisateur</option>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="GESTIONNAIRE">GESTIONNAIRE</option>
                     </select>
                 </div>
                 <button type="submit" class="btn w-100 py-2">Mettre à jour l'utilisateur</button>
@@ -26,8 +26,51 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/useUserStore';
+import { useToast } from 'vue-toastification';
+
+const userStore = useUserStore();
+const route = useRoute();
+const router = useRouter();
+const toast = useToast();
+
+const nom = ref('');
+const email = ref('');
+const role = ref('GESTIONNAIRE');
+
+onMounted(() => {
+    const userId = route.params.id;
+    userStore.loadUserById(userId).then(() => {
+        nom.value = userStore.user.nom;
+        email.value = userStore.user.email;
+        role.value = userStore.user.role;
+    });
+});
+
+const updateUser = async () => {
+    try {
+        const userId = route.params.id;
+        const updatedUser = {
+            nom: nom.value,
+            email: email.value,
+            role: role.value
+        };
+
+        await userStore.updateUser(userId, updatedUser);
+        toast.success('Utilisateur mis à jour avec succès !');
+        router.push('/dashboard/utilisateurs');
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour de l\'utilisateur :', error.message);
+        toast.error('Une erreur est survenue lors de la mise à jour.');
+    }
+};
+
 
 </script>
+
+
 
 <style scoped>
 .form-container {
@@ -39,11 +82,7 @@
     justify-content: center;
 }
 
-/* .icon-container {
-    font-size: 100px;
-    color: #007bff;
-    margin-right: 40px;
-} */
+
 
 .form-content {
     flex: 1;

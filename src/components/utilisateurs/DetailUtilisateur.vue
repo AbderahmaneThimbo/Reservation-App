@@ -1,30 +1,43 @@
 <template>
-    <div class="form-container d-flex align-items-center">
+    <div class="form-container d-flex align-items-center" v-if="userStore.user && userStore.user.nom">
         <div class="form-content">
             <h2 class="text-center mb-4">Détails de l'utilisateur</h2>
             <form class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
-                    <input type="text" v-model="name" class="form-control" readonly />
+                    <input type="text" v-model="userStore.user.nom" class="form-control" readonly />
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="email" v-model="email" class="form-control" readonly />
+                    <input type="email" v-model="userStore.user.email" class="form-control" readonly />
                 </div>
                 <div class="form-group mb-4">
                     <label for="role" class="form-label">Rôle</label>
-                    <select v-model="role" class="form-control" disabled>
-                        <option value="ADMIN">Admin</option>
-                        <option value="USER">Utilisateur</option>
+                    <select v-model="userStore.user.role" class="form-control" disabled>
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="GESTIONNAIRE">GESTIONNAIRE</option>
                     </select>
                 </div>
             </form>
         </div>
     </div>
+    <p v-else>Chargement des détails de l'utilisateur...</p>
 </template>
 
-<script setup>
 
+<script setup>
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/useUserStore';
+
+const userStore = useUserStore();
+const route = useRoute();
+
+
+onMounted(() => {
+    const userId = route.params.id;
+    userStore.loadUserById(userId);
+});
 </script>
 
 <style scoped>
@@ -46,8 +59,6 @@
     border-radius: 5px;
     border: 1px solid #ced4da;
     transition: border-color 0.3s ease;
-    background-color: #e9ecef;
-    cursor: not-allowed;
 }
 
 .form-control:focus {
