@@ -59,7 +59,7 @@ const addUser = async () => {
         route.push("/dashboard/utilisateurs");
     } catch (error) {
         console.error("Erreur lors de l'ajout de l'utilisateur :", error.message);
-        // toast.error('Une erreur est survenue lors de l\'ajout.');
+        toast.error('Une erreur est survenue lors de l\'ajout.');
     }
 };
 

@@ -9,6 +9,13 @@ import GestionTypesChambres from '@/views/GestionTypesChambres.vue';
 import AjouterUtilisateur from '@/components/utilisateurs/AjouterUtilisateur.vue';
 import ModifierUtilisateur from '@/components/utilisateurs/ModifierUtilisateur.vue';
 import DetailUtilisateur from '@/components/utilisateurs/DetailUtilisateur.vue';
+import AjouterClient from '@/components/clients/AjouterClient.vue';
+import ModifierClient from '@/components/clients/ModifierClient.vue';
+import DetailClient from '@/components/clients/DetailClient.vue';
+import AjouterType from '@/components/types/AjouterType.vue';
+import DetailType from '@/components/types/DetailType.vue';
+import ModifierType from '@/components/types/modifierType.vue';
+
 
 const routes = [
   {
@@ -47,6 +54,21 @@ const routes = [
         component: GestionTypesChambres,
       },
       {
+        path: 'types/ajouter',
+        name: 'ajout-type',
+        component: AjouterType,
+      },
+      {
+        path: 'types/detail/:id',
+        name: 'detail-type',
+        component: DetailType,
+      },
+      {
+        path: 'types/modifier/:id',
+        name: 'modifier-type',
+        component: ModifierType,
+      },
+      {
         path: 'utilisateurs/ajouter',
         name: 'ajout-utilisateur',
         component: AjouterUtilisateur,
@@ -60,6 +82,21 @@ const routes = [
         path: 'utilisateurs/detail/:id',
         name: 'detail-utilisateur',
         component: DetailUtilisateur,
+      },
+      {
+        path: 'clients/ajouter',
+        name: 'ajouter-client',
+        component: AjouterClient,
+      },
+      {
+        path: 'clients/modifier/:id',
+        name: 'modifier-client',
+        component: ModifierClient,
+      },
+      {
+        path: 'clients/detail/:id',
+        name: 'detail-client',
+        component: DetailClient,
       },
     ],
   },

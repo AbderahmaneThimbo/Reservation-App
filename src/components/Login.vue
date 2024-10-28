@@ -3,7 +3,7 @@
     <div class="card p-4" style="width: 400px;">
       <h2 class="text-center mb-4">Login</h2>
 
-      <form>
+      <form @submit.prevent="login">
         <div class="form-group mb-3">
           <label for="email">Email</label>
           <input type="email" v-model="email" class="form-control" id="email" placeholder="Entrer votre email"
@@ -16,7 +16,7 @@
             placeholder="Entrer votre mot de passe" required />
         </div>
 
-        <router-link to="/dashboard/utilisateurs" class="btn btn-success w-100">Se connecter</router-link>
+        <button type="submit" class="btn btn-success w-100">Se connecter</button>
       </form>
 
       <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
@@ -26,10 +26,25 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'vue-router';
 
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const authStore = useAuthStore(); // Utilisation du store
+const router = useRouter();
+
+const login = async () => {
+  try {
+    await authStore.login(email.value, password.value);
+    router.push('/dashboard');
+  } catch (error) {
+    console.log(error);
+
+    errorMessage.value = "Erreur lors de la connexion";
+  }
+};
 </script>
 
 <style scoped>

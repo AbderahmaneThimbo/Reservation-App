@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+import { useAuthStore } from './authStore'; 
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({
@@ -13,10 +14,13 @@ export const useUserStore = defineStore("userStore", {
 
   actions: {
     async loadUserData() {
+      const authStore = useAuthStore(); 
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/utilisateurs"
-        );
+        const response = await axios.get("http://localhost:3000/api/utilisateurs", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}` 
+          }
+        });
         this.users = response.data;
       } catch (error) {
         console.error(
@@ -25,10 +29,17 @@ export const useUserStore = defineStore("userStore", {
         );
       }
     },
+    
     async loadUserById(id) {
+      const authStore = useAuthStore(); 
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/utilisateurs/${id}`
+          `http://localhost:3000/api/utilisateurs/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}` 
+            }
+          }
         );
         const userData = response.data;
         this.user = {
@@ -44,11 +55,18 @@ export const useUserStore = defineStore("userStore", {
         );
       }
     },
+
     async addUser(newUser) {
+      const authStore = useAuthStore();
       try {
         const response = await axios.post(
           "http://localhost:3000/api/utilisateurs",
-          newUser
+          newUser,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}` 
+            }
+          }
         );
         if (response.status !== 200 && response.status !== 201) {
           throw new Error("L'ajout a échoué.");
@@ -64,10 +82,16 @@ export const useUserStore = defineStore("userStore", {
     },    
 
     async updateUser(id, updatedUser) {
+      const authStore = useAuthStore();
       try {
         const response = await axios.put(
           `http://localhost:3000/api/utilisateurs/${id}`,
-          updatedUser
+          updatedUser,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}` 
+            }
+          }
         );
 
         if (response.status !== 200) {
@@ -85,8 +109,13 @@ export const useUserStore = defineStore("userStore", {
     },
 
     async removeUser(id) {
+      const authStore = useAuthStore();
       try {
-        await axios.delete(`http://localhost:3000/api/utilisateurs/${id}`);
+        await axios.delete(`http://localhost:3000/api/utilisateurs/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}` 
+          }
+        });
         this.loadUserData();
       } catch (error) {
         console.error(
