@@ -14,7 +14,7 @@ import ModifierClient from '@/components/clients/ModifierClient.vue';
 import DetailClient from '@/components/clients/DetailClient.vue';
 import AjouterType from '@/components/types/AjouterType.vue';
 import DetailType from '@/components/types/DetailType.vue';
-import ModifierType from '@/components/types/modifierType.vue';
+import ModifierType from '@/components/types/ModifierType.vue';
 
 
 const routes = [

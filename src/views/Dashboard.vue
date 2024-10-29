@@ -39,7 +39,6 @@
       </ul>
     </nav>
 
-    <!-- Top bar -->
     <div class="top-bar">
       <div class="company-info">
         <h2>Dashboard</h2>
@@ -49,8 +48,8 @@
         <i class="fas fa-envelope"></i>
         <img src="https://via.placeholder.com/40" alt="User" class="user-img">
         <div>
-          <h5>Thimbo</h5>
-          <small>Administrateur</small>
+          <h5>{{ authStore.user?.nom }}</h5>
+          <small>{{ authStore.user?.role }}</small>
         </div>
       </div>
     </div>
@@ -62,13 +61,10 @@
   </div>
 </template>
 
+<script setup>
+import { useAuthStore } from '@/stores/authStore';
 
-<script>
-export default {
-  name: 'Dashboard',
-  mounted() {
-  }
-};
+const authStore = useAuthStore(); 
 </script>
 
 <style scoped>

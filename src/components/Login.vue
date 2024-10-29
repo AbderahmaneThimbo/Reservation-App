@@ -32,7 +32,7 @@ import { useRouter } from 'vue-router';
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
-const authStore = useAuthStore(); // Utilisation du store
+const authStore = useAuthStore();
 const router = useRouter();
 
 const login = async () => {

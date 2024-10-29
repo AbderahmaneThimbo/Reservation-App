@@ -3,7 +3,8 @@ import axios from "axios";
 
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
-    token: null
+    token: null,
+    user: null
   }),
 
   actions: {
@@ -15,6 +16,14 @@ export const useAuthStore = defineStore("authStore", {
         });
 
         this.token = response.data.token;
+
+        const userResponse = await axios.get("http://localhost:3000/api/me", {
+          headers: {
+            Authorization: `Bearer ${this.token}`
+          }
+        });
+
+        this.user = userResponse.data.user;
       } catch (error) {
         console.error("Erreur lors de la connexion :", error.message);
         throw error;
@@ -23,6 +32,7 @@ export const useAuthStore = defineStore("authStore", {
 
     logout() {
       this.token = null;
+      this.user = null;
     }
   },
 
