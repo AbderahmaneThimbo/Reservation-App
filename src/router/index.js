@@ -15,7 +15,11 @@ import DetailClient from '@/components/clients/DetailClient.vue';
 import AjouterType from '@/components/types/AjouterType.vue';
 import DetailType from '@/components/types/DetailType.vue';
 import ModifierType from '@/components/types/ModifierType.vue';
-
+import AjouterChambre from '@/components/chambres/AjouterChambre.vue';
+import ModifierChambre from '@/components/chambres/ModifierChambre.vue';
+import AjouterReservation from '@/components/reservations/AjouterReservation.vue';
+import ModifierReservation from '@/components/reservations/ModifierReservation.vue';
+import DetailReservation from '@/components/reservations/DetailReservation.vue';
 
 const routes = [
   {
@@ -44,9 +48,34 @@ const routes = [
         component: GestionChambres,
       },
       {
+        path: 'chambres/ajouter',
+        name: 'ajout-chambre',
+        component: AjouterChambre,
+      },
+      {
+        path: 'chambres/modifier',
+        name: 'modifier-chambre',
+        component: ModifierChambre,
+      },
+      {
         path: 'reservations',
         name: 'gestion-reservations',
         component: GestionReservations,
+      },
+      {
+        path: 'reservations/ajouter',
+        name: 'ajout-reservations',
+        component: AjouterReservation,
+      },
+      {
+        path: 'reservations/modifier/:id',
+        name: 'modifier-reservations',
+        component: ModifierReservation,
+      },
+      {
+        path: 'reservations/detail/:id',
+        name: 'detail-reservations',
+        component: DetailReservation,
       },
       {
         path: 'types-chambres',

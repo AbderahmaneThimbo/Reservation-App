@@ -24,14 +24,14 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useClientStore } from '@/stores/useClientStore'; // Importer le store client
+import { useClientStore } from '@/stores/useClientStore';
 
 const clientStore = useClientStore();
 const route = useRoute();
 
 onMounted(() => {
     const clientId = route.params.id;
-    clientStore.loadClientById(clientId); // Charger les détails du client depuis le store
+    clientStore.loadClientById(clientId);
 });
 </script>
 

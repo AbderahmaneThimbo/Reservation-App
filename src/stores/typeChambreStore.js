@@ -121,7 +121,7 @@ export const useTypeChambreStore = defineStore("typeChambreStore", {
           }
         });
         this.chambres = response.data; 
-        // return this.chambres;
+        return this.chambres;
       } catch (error) {
         console.error(
           "Erreur lors du chargement des chambres liées au type de chambre :",

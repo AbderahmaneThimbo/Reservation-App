@@ -4,7 +4,9 @@ import { useAuthStore } from "./authStore";
 
 export const useChambreStore = defineStore("chambreStore", {
   state: () => ({
-    chambres: []
+    chambres: [],
+    chambre: null,
+    typesChambres: []
   }),
 
   actions: {
@@ -21,6 +23,113 @@ export const useChambreStore = defineStore("chambreStore", {
       } catch (error) {
         console.error(
           "Erreur lors du chargement des chambres :",
+          error.message
+        );
+        throw error;
+      }
+    },
+
+    async loadChambreById(id) {
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/api/chambres/${id}`,  
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          }
+        );
+        this.chambre = response.data;
+        return this.chambre;
+      } catch (error) {
+        console.error('Erreur lors du chargement de la chambre :', error.message);
+        throw error;
+      }
+    },
+    
+    async loadTypesChambres() {
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.get("http://localhost:3000/api/types", {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+        this.typesChambres = response.data;
+        return this.typesChambres;
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des types de chambres :",
+          error.message
+        );
+        throw error;
+      }
+    },
+
+    async deleteChambre(id) {
+      const authStore = useAuthStore();
+      try {
+        await axios.delete(`http://localhost:3000/api/chambres/${id}`, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`
+          }
+        });
+        this.loadChambres();
+      } catch (error) {
+        console.error(
+          "Erreur lors de la suppression de la chambre :",
+          error.message
+        );
+        throw error;
+      }
+    },
+
+    async addChambre(newChambre) {
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/api/chambres",
+          newChambre,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          }
+        );
+        if (response.status !== 200 && response.status !== 201) {
+          throw new Error("L'ajout a échoué.");
+        }
+        this.loadChambres();
+      } catch (error) {
+        console.error(
+          "Erreur lors de l'ajout du chambre :",
+          error.response?.data || error.message
+        );
+        throw error;
+      }
+    },
+
+    async updateChambre(id, updatedChambre) {
+      const authStore = useAuthStore();
+      try {
+        const response = await axios.put(
+          `http://localhost:3000/api/chambres/${id}`,
+          updatedChambre,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
+          }
+        );
+        const index = this.chambres.findIndex(chambre => chambre.id === id);
+        if (index !== -1) {
+          this.chambres[index] = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Erreur lors de la mise à jour de la chambre :",
           error.message
         );
         throw error;

@@ -44,12 +44,12 @@
         <h2>Dashboard</h2>
       </div>
       <div class="user-info">
-        <i class="fas fa-bell"></i>
-        <i class="fas fa-envelope"></i>
-        <img src="https://via.placeholder.com/40" alt="User" class="user-img">
+        <!-- <i class="fas fa-bell"></i>
+        <i class="fas fa-envelope"></i> -->
+        <i class="fa-solid fa-circle-user"></i>
         <div>
           <h5>{{ authStore.user?.nom }}</h5>
-          <small>{{ authStore.user?.role }}</small>
+          <!-- <small>{{ authStore.user?.role }}</small> -->
         </div>
       </div>
     </div>

@@ -22,8 +22,10 @@ export const useClientStore = defineStore("clientStore", {
           }
         });
         this.clients = response.data;
+        return this.clients;
       } catch (error) {
         console.error("Erreur lors du chargement des clients :", error.message);
+        throw error;
       }
     },
     async loadClientById(id) {
