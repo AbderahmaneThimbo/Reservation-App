@@ -1,5 +1,10 @@
 <template>
     <div class="container mt-5 form-container shadow-sm bg-white rounded">
+        <div class="">
+            <router-link to="/dashboard/chambres" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i>
+            </router-link>
+        </div>
         <h2 class="text-center mb-4">Ajouter une chambre</h2>
         <form @submit.prevent="submitChambre" class="p-4">
             <div class="mb-3">

@@ -6,7 +6,8 @@ export const useChambreStore = defineStore("chambreStore", {
   state: () => ({
     chambres: [],
     chambre: null,
-    typesChambres: []
+    typesChambres: [],
+    utilisateurs: []
   }),
 
   actions: {
@@ -113,7 +114,7 @@ export const useChambreStore = defineStore("chambreStore", {
     async updateChambre(id, updatedChambre) {
       const authStore = useAuthStore();
       try {
-        const response = await axios.put(
+         await axios.put(
           `http://localhost:3000/api/chambres/${id}`,
           updatedChambre,
           {
@@ -122,11 +123,7 @@ export const useChambreStore = defineStore("chambreStore", {
             }
           }
         );
-        const index = this.chambres.findIndex(chambre => chambre.id === id);
-        if (index !== -1) {
-          this.chambres[index] = response.data;
-        }
-        return response.data;
+        await this.loadChambres();
       } catch (error) {
         console.error(
           "Erreur lors de la mise à jour de la chambre :",

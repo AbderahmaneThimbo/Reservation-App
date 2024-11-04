@@ -1,6 +1,9 @@
 <template>
     <div class="form-container d-flex align-items-center">
         <div class="form-content">
+            <router-link to="/dashboard/types-chambres" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i>
+            </router-link>
             <h2 class="text-center mb-4">Modifier un type de chambre</h2>
             <form @submit.prevent="updateTypeChambre" class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">

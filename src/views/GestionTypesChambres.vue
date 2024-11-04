@@ -3,7 +3,7 @@
         <div class="container">
             <div class="container mt-3 mb-4 d-flex justify-content-end">
                 <router-link class="btn btn-success create-user" to="/dashboard/types/ajouter">
-                    <i class="fas fa-user-plus"></i> Ajouter un type de chambre
+                    <i class="fas fa-plus"></i> Ajouter un type de chambre
                 </router-link>
             </div>
 
@@ -70,6 +70,7 @@ const removeTypeChambre = (id) => {
         });
     }
 };
+
 </script>
 
 

@@ -1,6 +1,9 @@
 <template>
     <div class="form-container d-flex align-items-center" v-if="clientStore.client && clientStore.client.nom">
         <div class="form-content">
+            <router-link to="/dashboard/clients" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i>
+            </router-link>
             <h2 class="text-center mb-4">Détails du client</h2>
             <form class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">
@@ -11,9 +14,13 @@
                     <label for="prenom" class="form-label">Prénom</label>
                     <input type="text" v-model="clientStore.client.prenom" class="form-control" readonly />
                 </div>
-                <div class="form-group mb-4">
+                <div class="form-group mb-3">
                     <label for="telephone" class="form-label">Téléphone</label>
                     <input type="text" v-model="clientStore.client.telephone" class="form-control" readonly />
+                </div>
+                <div class="form-group mb-4">
+                    <label for="createdBy" class="form-label">Créé par</label>
+                    <input type="text" :value="clientStore.client.utilisateur.nom" class="form-control" readonly />
                 </div>
             </form>
         </div>

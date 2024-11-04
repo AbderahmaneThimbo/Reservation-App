@@ -1,5 +1,8 @@
 <template>
     <div class="container my-5">
+        <router-link to="/dashboard/types-chambres" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i>
+        </router-link>
         <h2 v-if="typeChambre" class="text-center mb-4">Chambres pour le type: {{ typeChambre.nom }}</h2>
 
         <div v-if="chambres.length > 0" class="row">

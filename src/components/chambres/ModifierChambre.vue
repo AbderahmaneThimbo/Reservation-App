@@ -1,5 +1,10 @@
 <template>
     <div class="container mt-5 form-container shadow-sm bg-white rounded">
+        <div class="">
+            <router-link to="/dashboard/chambres" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i>
+            </router-link>
+        </div>
         <h2 class="text-center mb-4">Modifier la chambre</h2>
         <form @submit.prevent="submitModifications" class="p-4">
             <div class="mb-3">
@@ -24,7 +29,7 @@
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Modifier la chambre</button>
+                <button type="submit" class="btn">Modifier la chambre</button>
             </div>
         </form>
     </div>
@@ -104,14 +109,14 @@ const submitModifications = async () => {
 }
 
 .btn {
-    background-color: #007bff;
+    background-color: #1abc9c;
     color: white;
     font-size: 16px;
     font-weight: 600;
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #1abc9c;
 }
 
 h2 {

@@ -1,8 +1,8 @@
 <template>
     <div class="container mt-5">
         <div class="d-flex justify-content-end mb-3">
-            <router-link class="btn btn-primary" :to="{ name: 'ajout-chambre' }">
-                <i class="fas fa-plus me-2"></i> Ajouter une chambre
+            <router-link class="btn btn-success create-client" to="/dashboard/chambres/ajouter">
+                <i class="fas fa-plus"></i> Ajouter une chambre
             </router-link>
         </div>
         <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -21,8 +21,6 @@
                                 <i class="fas fa-trash text-danger" @click="removeChambre(chambre.id)"></i>
                             </span>
                         </h5>
-                        <!-- <p class="card-text">Prix: {{ chambre.prix }}€</p>
-                        <p class="card-text">Type: {{ chambre.type?.nom || 'Non spécifié' }}</p> -->
                     </div>
                 </div>
             </div>
@@ -47,8 +45,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="typeChambre" class="form-label">Type</label>
-                            <input type="text" class="form-control" id="typeChambre"
-                                :value="selectedChambre.type?.nom || 'Non spécifié'" readonly>
+                            <input type="text" class="form-control" id="typeChambre" :value="selectedChambre.type?.nom"
+                                readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="createdBy" class="form-label">Créé par</label>
+                            <input type="text" class="form-control" id="createdBy"
+                                :value="selectedChambre.utilisateur?.nom" readonly>
                         </div>
                     </div>
                     <div class="modal-footer">

@@ -1,6 +1,11 @@
 <template>
     <div class="form-container d-flex align-items-center">
         <div class="form-content">
+            <div class="">
+                <router-link to="/dashboard/clients" class="btn btn-secondary mb-3">
+                    <i class="fas fa-arrow-left"></i>
+                </router-link>
+            </div>
             <h2 class="text-center mb-4">Ajouter un client</h2>
             <form @submit.prevent="addClient" class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">

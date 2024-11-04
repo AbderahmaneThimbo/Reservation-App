@@ -1,45 +1,52 @@
 <template>
     <div class="reservation-form-container">
-        <h2>Ajouter une réservation</h2>
+        <router-link to="/dashboard/reservations" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i>
+        </router-link>
+        <h2 class="text-center mb-4">Ajouter une réservation</h2>
         <form @submit.prevent="submitReservation">
+            <div class="row">
+                <!-- First Column -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="client" class="form-label">Client</label>
+                        <select v-model="newReservation.clientId" class="form-select" required>
+                            <option disabled value="">Sélectionnez un client</option>
+                            <option v-for="client in clients" :key="client.id" :value="client.id">
+                                {{ client.nom }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateDebut" class="form-label">Date de début</label>
+                        <input type="date" v-model="newReservation.dateDebut" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Statut</label>
+                        <select v-model="newReservation.status" class="form-control" required>
+                            <option value="EN_ATTENTE">EN_ATTENTE</option>
+                            <option value="CONFIRMEE">CONFIRMEE</option>
+                        </select>
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label for="client" class="form-label">Client</label>
-                <select v-model="newReservation.clientId" class="form-select" required>
-                    <option disabled value="">Sélectionnez un client</option>
-                    <option v-for="client in clients" :key="client.id" :value="client.id">
-                        {{ client.nom }}
-                    </option>
-                </select>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="chambre" class="form-label">Chambre</label>
+                        <select v-model="newReservation.chambreId" class="form-select" required>
+                            <option disabled value="">Sélectionnez une chambre</option>
+                            <option v-for="chambre in chambres" :key="chambre.id" :value="chambre.id">
+                                Chambre {{ chambre.numeroChambre }} - {{ chambre.prix }} €
+                            </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateFin" class="form-label">Date de fin</label>
+                        <input type="date" v-model="newReservation.dateFin" class="form-control" required />
+                    </div>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="chambre" class="form-label">Chambre</label>
-                <select v-model="newReservation.chambreId" class="form-select" required>
-                    <option disabled value="">Sélectionnez une chambre</option>
-                    <option v-for="chambre in chambres" :key="chambre.id" :value="chambre.id">
-                        Chambre {{ chambre.numeroChambre }} - {{ chambre.prix }} €
-                    </option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="dateDebut" class="form-label">Date de début</label>
-                <input type="date" v-model="newReservation.dateDebut" class="form-control" required />
-            </div>
-            <div class="mb-3">
-                <label for="dateFin" class="form-label">Date de fin</label>
-                <input type="date" v-model="newReservation.dateFin" class="form-control" required />
-            </div>
-            <div class=" mb-3">
-                <label for="status" class="form-label">Statut</label>
-                <select v-model="newReservation.status" class="form-control" required>
-                    <option value="EN_ATTENTE">EN_ATTENTE</option>
-                    <option value="CONFIRMEE">CONFIRMEE</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Ajouter la réservation</button>
+            <button type="submit" class="btn w-100 py-2 btn-primary">Ajouter la réservation</button>
         </form>
     </div>
 </template>
@@ -112,6 +119,12 @@ const submitReservation = async () => {
     background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+}
+
+h2 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
 .form-label {

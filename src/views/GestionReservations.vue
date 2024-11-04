@@ -62,6 +62,7 @@ const confirmRemoveReservation = (id) => {
             reservationStore.loadReservations();
         }).catch(error => {
             console.error("Erreur lors de la suppression:", error.message);
+            toast.error('Une erreur est survenue lors de la suppression.');
         });
     }
 };

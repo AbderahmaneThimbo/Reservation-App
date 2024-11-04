@@ -1,6 +1,9 @@
 <template>
     <div class="form-container d-flex align-items-center" v-if="userStore.user && userStore.user.nom">
         <div class="form-content">
+            <router-link to="/dashboard/utilisateurs" class="btn btn-secondary mb-3">
+                <i class="fas fa-arrow-left"></i>
+            </router-link>
             <h2 class="text-center mb-4">Détails de l'utilisateur</h2>
             <form class="p-4 shadow-sm bg-white rounded">
                 <div class="form-group mb-3">

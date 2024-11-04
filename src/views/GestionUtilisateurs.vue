@@ -45,6 +45,7 @@ import { useToast } from 'vue-toastification';
 
 const userStore = useUserStore();
 const toast = useToast();
+const users = userStore.users;
 
 onMounted(() => {
     userStore.loadUserData();
@@ -58,10 +59,11 @@ const confirmRemoveUser = (id) => {
             userStore.loadUserData();
         }).catch(error => {
             console.error("Erreur lors de la suppression:", error.message);
+            toast.error('Une erreur est survenue lors de la suppression.');
         });
     }
 };
-const users = userStore.users; 
+
 </script>
 
 

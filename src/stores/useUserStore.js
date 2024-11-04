@@ -122,6 +122,7 @@ export const useUserStore = defineStore("userStore", {
           "Erreur lors de la suppression de l'utilisateur :",
           error.message
         );
+        throw error;
       }
     }
   },
