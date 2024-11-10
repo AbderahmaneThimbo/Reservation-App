@@ -7,7 +7,6 @@
 
         <div v-if="reservation">
             <div class="row">
-                <!-- Client and Chambre Number -->
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="clientName" class="form-label">Client</label>
@@ -25,7 +24,6 @@
             </div>
 
             <div class="row">
-                <!-- Date de début and Date de fin -->
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="dateDebut" class="form-label">Date de début</label>
@@ -43,7 +41,6 @@
             </div>
 
             <div class="row">
-                <!-- Status and Created By -->
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="status" class="form-label">Statut</label>

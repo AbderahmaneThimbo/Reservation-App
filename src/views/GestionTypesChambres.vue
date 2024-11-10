@@ -45,6 +45,7 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTypeChambreStore } from '@/stores/typeChambreStore';
 import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
 
 const typeStore = useTypeChambreStore();
 const toast = useToast();
@@ -58,18 +59,35 @@ const redirectToDetail = (typeChambreId) => {
     router.push(`/dashboard/types/detail/${typeChambreId}`);
 };
 
-const removeTypeChambre = (id) => {
-    const confirmed = confirm('Voulez-vous vraiment supprimer ce type de chambre ?');
-    if (confirmed) {
-        typeStore.removeTypeChambre(id).then(() => {
-            toast.success('Type de chambre supprimé avec succès !');
-            typeStore.loadTypeChambres();
-        }).catch(error => {
-            console.error("Erreur lors de la suppression:", error.message);
+const removeTypeChambre = async (id) => {
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: 'Voulez-vous vraiment supprimer ce type de chambre ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await typeStore.removeTypeChambre(id);
+            if (response && response.data.warning) {
+                toast.warning(response.data.message);
+            } else {
+                toast.success('Type de chambre supprimé avec succès !');
+                await typeStore.loadTypeChambres();
+            }
+        } catch (error) {
             toast.error('Une erreur est survenue lors de la suppression.');
-        });
+            console.error("Erreur lors de la suppression:", error.message);
+        }
     }
 };
+
+
 
 </script>
 

@@ -34,6 +34,26 @@ export const useAuthStore = defineStore("authStore", {
         throw error;
       }
     },
+    async updateProfile(updatedProfile) {
+      try {
+        const response = await axios.put(
+          "http://localhost:3000/api/profil",
+          updatedProfile,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`
+            }
+          }
+        );
+        
+        this.user = response.data.utilisateur; 
+        return response.data;
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour du profil :", error.response?.data || error.message);
+        throw error;
+      }
+    },
+
     async forgotPassword(email) {
       try {
         const response = await requestPasswordReset(email);

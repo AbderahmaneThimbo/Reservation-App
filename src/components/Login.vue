@@ -1,7 +1,6 @@
 <template>
   <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card p-4 shadow-lg" style="width: 400px; border-radius: 10px;">
-      <!-- Logo -->
       <div class="text-center mb-4">
         <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
       </div>
@@ -13,12 +12,14 @@
           <label for="email">Email</label>
           <input type="email" v-model="email" class="form-control form-control-lg" id="email"
             placeholder="Entrer votre email" required />
+          <small v-if="errors.email" class="text-danger">{{ errors.email }}</small>
         </div>
-
         <div class="form-group mb-4">
           <label for="password">Mot de passe</label>
           <input type="password" v-model="password" class="form-control form-control-lg" id="password"
             placeholder="Entrer votre mot de passe" required />
+          <small v-if="errors.password" class="text-danger">{{ errors.password }}</small>
+
         </div>
 
         <div class="d-flex justify-content-between mb-3">
@@ -27,7 +28,6 @@
 
         <button type="submit" class="btn btn-primary btn-lg w-100">Se connecter</button>
       </form>
-
       <p v-if="errorMessage" class="text-danger mt-3 text-center">{{ errorMessage }}</p>
     </div>
   </div>
@@ -41,19 +41,27 @@ import { useRouter } from 'vue-router';
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const errors = ref({});
 const authStore = useAuthStore();
 const router = useRouter();
 
 const login = async () => {
+  errors.value = {};
   try {
     await authStore.login(email.value, password.value);
     router.push('/dashboard');
   } catch (error) {
-    console.log(error);
-    errorMessage.value = "Erreur lors de la connexion";
+    if (error.response && error.response.data && error.response.data.errors) {
+      error.response.data.errors.forEach(err => {
+        errors.value[err.path] = err.msg;
+      });
+    } else {
+      errorMessage.value = "Erreur lors de la connexion. Veuillez vérifier vos informations.";
+    }
   }
 };
 </script>
+
 
 <style scoped>
 .card {

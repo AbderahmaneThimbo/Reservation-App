@@ -39,30 +39,51 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUserStore } from '@/stores/useUserStore';
 import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
+
 
 const userStore = useUserStore();
 const toast = useToast();
-const users = userStore.users;
+const users = ref([]);
 
-onMounted(() => {
-    userStore.loadUserData();
+onMounted(async () => {
+    try {
+        await userStore.loadUserData();
+        users.value = userStore.users;
+    } catch (error) {
+        console.error("Erreur lors du chargement des utilisateurs:", error.message);
+        toast.error("Une erreur est survenue lors du chargement des utilisateurs.");
+    }
 });
 
-const confirmRemoveUser = (id) => {
-    const confirmed = confirm('Voulez-vous vraiment supprimer cet utilisateur ?');
-    if (confirmed) {
-        userStore.removeUser(id).then(() => {
-            toast.success('Utilisateur supprimer avec succès !');
-            userStore.loadUserData();
-        }).catch(error => {
+const confirmRemoveUser = async (id) => {
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: 'Voulez-vous vraiment supprimer cet utilisateur ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
+    if (result.isConfirmed) {
+        try {
+            await userStore.removeUser(id);
+            toast.success('Utilisateur supprimé avec succès !');
+            await userStore.loadUserData();
+            users.value = userStore.users;
+        } catch (error) {
             console.error("Erreur lors de la suppression:", error.message);
             toast.error('Une erreur est survenue lors de la suppression.');
-        });
+        }
     }
 };
+
+
 
 </script>
 
@@ -72,6 +93,7 @@ const confirmRemoveUser = (id) => {
 .user-management {
     margin: 0 auto;
     max-width: 1200px;
+    padding: 10px;
 }
 
 .top-bar {
@@ -88,7 +110,6 @@ h2 {
 }
 
 .create-user {
-    /* background-color: #1abc9c; */
     color: white;
     border-radius: 5px;
     padding: 10px 15px;
@@ -146,5 +167,79 @@ h2 {
 .action-btn i {
     color: #6c757d;
     font-size: 18px;
+}
+
+/* Media Queries pour rendre la page responsive */
+@media (max-width: 768px) {
+
+    /* Réduire la taille du conteneur et ajuster les marges */
+    .user-management {
+        padding: 5px;
+    }
+
+    /* Empiler les éléments de la top-bar verticalement sur mobile */
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .create-user {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+
+    .user-table th:nth-child(2),
+    .user-table td:nth-child(2) {
+        display: none;
+    }
+
+    /* Réduire les marges et tailles des éléments de la table */
+    .user-table th,
+    .user-table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* Réduire la taille des icônes d'action sur mobile */
+    .action-btn i {
+        font-size: 16px;
+    }
+
+    /* Assurer un bon alignement des actions */
+    .actions {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .user-management {
+        padding: 5px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    .create-user {
+        font-size: 12px;
+    }
+
+    .user-table th,
+    .user-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .action-btn i {
+        font-size: 14px;
+    }
 }
 </style>

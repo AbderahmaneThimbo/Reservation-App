@@ -4,8 +4,9 @@
             <router-link to="/dashboard/utilisateurs" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Détails de l'utilisateur</h2>
+
             <form class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Détails de l'utilisateur</h2>
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
                     <input type="text" v-model="userStore.user.nom" class="form-control" readonly />

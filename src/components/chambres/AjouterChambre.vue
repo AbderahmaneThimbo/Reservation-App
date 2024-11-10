@@ -7,16 +7,18 @@
         </div>
         <h2 class="text-center mb-4">Ajouter une chambre</h2>
         <form @submit.prevent="submitChambre" class="p-4">
+
             <div class="mb-3">
                 <label for="numeroChambre" class="form-label">Numéro de Chambre</label>
                 <input type="number" v-model.number="newChambre.numeroChambre" class="form-control" id="numeroChambre"
                     placeholder="Entrez le numéro de la chambre" required />
+                <small v-if="errors.numeroChambre" class="text-danger">{{ errors.numeroChambre }}</small>
             </div>
-
             <div class="mb-3">
                 <label for="prixChambre" class="form-label">Prix</label>
                 <input type="number" v-model="newChambre.prix" class="form-control" id="prixChambre"
                     placeholder="Entrez le prix de la chambre" required />
+                <small v-if="errors.prix" class="text-danger">{{ errors.prix }}</small>
             </div>
 
             <div class="mb-3">
@@ -27,6 +29,7 @@
                         {{ type.nom }}
                     </option>
                 </select>
+                <small v-if="errors.typeId" class="text-danger">{{ errors.typeId }}</small>
             </div>
 
             <div class="d-grid gap-2">
@@ -35,6 +38,7 @@
         </form>
     </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -52,6 +56,7 @@ const newChambre = ref({
     prix: '',
     typeId: ''
 });
+const errors = ref({});
 
 const typesChambres = ref([]);
 
@@ -64,6 +69,7 @@ onMounted(async () => {
 });
 
 const submitChambre = async () => {
+    errors.value = {};
     try {
         await chambreStore.addChambre({
             numeroChambre: Number(newChambre.value.numeroChambre),
@@ -78,11 +84,17 @@ const submitChambre = async () => {
         };
         router.push('/dashboard/chambres');
     } catch (error) {
-        console.error('Erreur lors de l\'ajout de la chambre :', error.message);
-        toast.error('Erreur lors de l\'ajout de la chambre.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Erreur lors de l\'ajout de la chambre.');
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .form-container {

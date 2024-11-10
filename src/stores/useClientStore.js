@@ -59,7 +59,7 @@ export const useClientStore = defineStore("clientStore", {
         if (response.status !== 200 && response.status !== 201) {
           throw new Error("L'ajout a échoué.");
         }
-        this.loadClientData();
+        await this.loadClientData();
       } catch (error) {
         console.error("Erreur lors de l'ajout du client :", error.message);
         throw error;
@@ -77,7 +77,7 @@ export const useClientStore = defineStore("clientStore", {
             }
           }
         );
-        this.loadClientData();
+        await this.loadClientData();
       } catch (error) {
         console.error(
           "Erreur lors de la mise à jour du client :",
@@ -89,18 +89,30 @@ export const useClientStore = defineStore("clientStore", {
     async removeClient(id) {
       const authStore = useAuthStore();
       try {
-        await axios.delete(`http://localhost:3000/api/clients/${id}`, {
-          headers: {
-            Authorization: `Bearer ${authStore.token}`
+        const response = await axios.delete(
+          `http://localhost:3000/api/clients/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authStore.token}`
+            }
           }
-        });
-        this.loadClientData();
-      } catch (error) {
-        console.error(
-          "Erreur lors de la suppression du client :",
-          error.message
         );
-        throw error;
+        await this.loadClientData();
+        return response;
+      } catch (error) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.warning
+        ) {
+          return error.response;
+        } else {
+          console.error(
+            "Erreur lors de la suppression du client :",
+            error.message
+          );
+          throw error;
+        }
       }
     }
   },

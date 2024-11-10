@@ -4,12 +4,13 @@
             <router-link to="/dashboard/types-chambres" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Modifier un type de chambre</h2>
             <form @submit.prevent="updateTypeChambre" class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Modifier un type de chambre</h2>
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom du type de chambre</label>
                     <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom du type"
                         required />
+                    <small v-if="errors.nom" class="text-danger">{{ errors.nom }}</small>
                 </div>
 
                 <button type="submit" class="btn w-100 py-2">Mettre à jour le type de chambre</button>
@@ -17,6 +18,7 @@
         </div>
     </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useTypeChambreStore } from '@/stores/typeChambreStore';
@@ -28,6 +30,8 @@ const router = useRouter();
 const route = useRoute();
 
 const nom = ref('');
+const errors = ref({});
+
 const typeChambreStore = useTypeChambreStore();
 
 onMounted(() => {
@@ -40,8 +44,8 @@ onMounted(() => {
     });
 });
 
-
 const updateTypeChambre = async () => {
+    errors.value = {};
     try {
         const typeChambreId = route.params.id;
         const updatedTypeChambre = {
@@ -52,11 +56,17 @@ const updateTypeChambre = async () => {
         toast.success('Type de chambre mis à jour avec succès !');
         router.push("/dashboard/types-chambres");
     } catch (error) {
-        console.error("Erreur lors de la mise à jour du type de chambre :", error.message);
-        toast.error("Une erreur est survenue lors de la mise à jour.");
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error("Une erreur est survenue lors de la mise à jour.");
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .form-container {

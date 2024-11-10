@@ -24,7 +24,15 @@
                     <td>{{ reservation.client?.nom }}</td>
                     <td>{{ new Date(reservation.dateDebut).toLocaleDateString() }}</td>
                     <td>{{ new Date(reservation.dateFin).toLocaleDateString() }}</td>
-                    <td>{{ reservation.status }}</td>
+                    <td>
+                        <select v-model="reservation.status"
+                            :class="{ 'status-pending': reservation.status === 'EN_ATTENTE', 'status-confirmed': reservation.status === 'CONFIRMEE' }"
+                            @change="updateStatus(reservation)">
+                            <option value="CONFIRMEE">Confirmé</option>
+                            <option value="EN_ATTENTE">En attente</option>
+                        </select>
+                    </td>
+
                     <td class="actions">
                         <router-link :to="`/dashboard/reservations/detail/${reservation.id}`" class="action-btn">
                             <i class="fas fa-eye"></i>
@@ -42,39 +50,69 @@
     </div>
 </template>
 
+
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useReservationStore } from '@/stores/reservationStore';
 import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
 
 const reservationStore = useReservationStore();
 const toast = useToast();
+const reservations = ref([]);
 
-onMounted(() => {
-    reservationStore.loadReservations();
+onMounted(async () => {
+    try {
+        await reservationStore.loadReservations();
+        reservations.value = reservationStore.reservations;
+    } catch (error) {
+        console.error("Erreur lors du chargement des réservations :", error.message);
+        toast.error("Une erreur est survenue lors du chargement des réservations.");
+    }
 });
 
-const confirmRemoveReservation = (id) => {
-    const confirmed = confirm('Voulez-vous vraiment supprimer cette réservation ?');
-    if (confirmed) {
-        reservationStore.removeReservation(id).then(() => {
-            toast.success('Réservation supprimée avec succès !');
-            reservationStore.loadReservations();
-        }).catch(error => {
-            console.error("Erreur lors de la suppression:", error.message);
-            toast.error('Une erreur est survenue lors de la suppression.');
-        });
+const updateStatus = async (reservation) => {
+    try {
+        await reservationStore.updateReservation(reservation.id, { status: reservation.status });
+        toast.success("Statut mis à jour avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du statut :", error.message);
+        toast.error("Une erreur est survenue lors de la mise à jour du statut.");
     }
 };
 
-const reservations = reservationStore.reservations;
+const confirmRemoveReservation = async (id) => {
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: 'Voulez-vous vraiment supprimer cette réservation ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
+    if (result.isConfirmed) {
+        try {
+            await reservationStore.removeReservation(id);
+            toast.success('Réservation supprimée avec succès !');
+            await reservationStore.loadReservations();
+            reservations.value = reservationStore.reservations;
+        } catch (error) {
+            console.error("Erreur lors de la suppression :", error.message);
+            toast.error('Une erreur est survenue lors de la suppression.');
+        }
+    }
+};
 </script>
+
 
 
 <style scoped>
 .reservation-management {
     margin: 0 auto;
     max-width: 1200px;
+    padding: 10px;
 }
 
 .top-bar {
@@ -90,7 +128,7 @@ h2 {
     color: #4a4a4a;
 }
 
-.create-reservation {
+.create-client {
     color: white;
     border-radius: 5px;
     padding: 10px 15px;
@@ -99,7 +137,7 @@ h2 {
     align-items: center;
 }
 
-.create-reservation i {
+.create-client i {
     margin-right: 8px;
 }
 
@@ -148,5 +186,67 @@ h2 {
 .action-btn i {
     color: #6c757d;
     font-size: 18px;
+}
+
+.status-pending {
+    background-color: #ffe08a;
+    color: #856404;
+}
+
+.status-confirmed {
+    background-color: #a8e6cf;
+    color: #2f855a;
+}
+
+select {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    appearance: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .reservation-management {
+        padding: 10px;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        margin-top: 20px;
+        align-items: flex-start;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .create-client {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .reservation-table th:nth-child(4),
+    .reservation-table td:nth-child(4) {
+        display: none;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .action-btn i {
+        font-size: 16px;
+    }
+
+    .reservation-table th,
+    .reservation-table td {
+        padding: 10px;
+        font-size: 14px;
+    }
 }
 </style>

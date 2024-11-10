@@ -1,4 +1,5 @@
 <script setup>
+import Swal from 'sweetalert2';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -11,7 +12,19 @@ const reservationStore = useReservationStore();
 
 const handleEventClick = (info) => {
     const reservation = info.event.extendedProps;
-    alert(`Détails de la réservation:\nClient: ${reservation.client.nom}\nChambre: ${reservation.chambre.numeroChambre}\nStatus: ${reservation.status}\nDate de début: ${reservation.dateDebut}\nDate de fin: ${reservation.dateFin}`);
+    Swal.fire({
+        title: 'Détails de la Réservation',
+        html: `
+            <p><strong>Client :</strong> ${reservation.client.nom}</p>
+            <p><strong>Chambre :</strong> ${reservation.chambre.numeroChambre}</p>
+            <p><strong>Status :</strong> ${reservation.status}</p>
+            <p><strong>Date de Début :</strong> ${new Date(reservation.dateDebut).toLocaleDateString()}</p>
+            <p><strong>Date de Fin :</strong> ${new Date(reservation.dateFin).toLocaleDateString()}</p>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Fermer',
+        confirmButtonColor: '#1abc9c'
+    });
 };
 
 const calendarOptions = ref({
@@ -44,6 +57,7 @@ onMounted(async () => {
         console.error('Erreur lors du chargement des réservations:', error);
     }
 });
+
 </script>
 
 <template>

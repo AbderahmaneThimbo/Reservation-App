@@ -4,12 +4,16 @@
             <router-link to="/dashboard/types-chambres" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Ajouter un type de chambre</h2>
             <form @submit.prevent="addTypeChambre" class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Ajouter un type de chambre</h2>
+
+                <!-- Champ Nom du type de chambre -->
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom du type de chambre</label>
                     <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom du type"
                         required />
+                    <!-- Affichage de l'erreur pour le champ nom -->
+                    <small v-if="errors.nom" class="text-danger">{{ errors.nom }}</small>
                 </div>
 
                 <button type="submit" class="btn w-100 py-2">Ajouter le type de chambre</button>
@@ -17,6 +21,7 @@
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue';
@@ -28,11 +33,12 @@ const toast = useToast();
 const router = useRouter();
 
 const nom = ref('');
+const errors = ref({}); // Variable réactive pour stocker les erreurs
 
 const typeChambreStore = useTypeChambreStore();
 
-
 const addTypeChambre = async () => {
+    errors.value = {}; // Réinitialiser les erreurs avant chaque soumission
     try {
         await typeChambreStore.addTypeChambre({
             nom: nom.value
@@ -40,11 +46,18 @@ const addTypeChambre = async () => {
         toast.success('Type de chambre ajouté avec succès !');
         router.push("/dashboard/types-chambres");
     } catch (error) {
-        console.error("Erreur lors de l'ajout du type de chambre :", error.message);
-        toast.error('Une erreur est survenue lors de l\'ajout.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            // Stocker les erreurs retournées par l'API
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Une erreur est survenue lors de l\'ajout.');
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .form-container {

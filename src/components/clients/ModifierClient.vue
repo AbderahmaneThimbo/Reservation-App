@@ -4,20 +4,25 @@
             <router-link to="/dashboard/clients" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Modifier le client</h2>
             <form @submit.prevent="updateClient" class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Modifier le client</h2>
+
                 <div class="form-group mb-3">
                     <label for="nom" class="form-label">Nom</label>
                     <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom" required />
+                    <small v-if="errors.nom" class="text-danger">{{ errors.nom }}</small>
                 </div>
+
                 <div class="form-group mb-3">
                     <label for="prenom" class="form-label">Prénom</label>
                     <input type="text" v-model="prenom" class="form-control" placeholder="Entrez le prénom" required />
+                    <small v-if="errors.prenom" class="text-danger">{{ errors.prenom }}</small>
                 </div>
                 <div class="form-group mb-3">
                     <label for="telephone" class="form-label">Téléphone</label>
                     <input type="text" v-model="telephone" class="form-control" placeholder="Entrez le téléphone"
                         required />
+                    <small v-if="errors.telephone" class="text-danger">{{ errors.telephone }}</small>
                 </div>
                 <button type="submit" class="btn w-100 py-2">Mettre à jour le client</button>
             </form>
@@ -39,6 +44,7 @@ const toast = useToast();
 const nom = ref('');
 const prenom = ref('');
 const telephone = ref('');
+const errors = ref({});
 
 onMounted(() => {
     const clientId = route.params.id;
@@ -46,10 +52,14 @@ onMounted(() => {
         nom.value = clientStore.client.nom;
         prenom.value = clientStore.client.prenom;
         telephone.value = clientStore.client.telephone;
+    }).catch((error) => {
+        toast.error("Erreur lors du chargement du client.");
+        console.error("Erreur :", error.message);
     });
 });
 
 const updateClient = async () => {
+    errors.value = {};
     try {
         const clientId = route.params.id;
         const updatedClient = {
@@ -62,8 +72,13 @@ const updateClient = async () => {
         toast.success('Client mis à jour avec succès !');
         router.push('/dashboard/clients');
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du client :', error.message);
-        toast.error('Une erreur est survenue lors de la mise à jour.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Une erreur est survenue lors de la mise à jour.');
+        }
     }
 };
 </script>

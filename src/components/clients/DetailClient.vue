@@ -4,8 +4,8 @@
             <router-link to="/dashboard/clients" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Détails du client</h2>
             <form class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Détails du client</h2>
                 <div class="form-group mb-3">
                     <label for="nom" class="form-label">Nom</label>
                     <input type="text" v-model="clientStore.client.nom" class="form-control" readonly />

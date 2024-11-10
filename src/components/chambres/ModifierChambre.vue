@@ -11,13 +11,13 @@
                 <label for="numeroChambre" class="form-label">Numéro de Chambre</label>
                 <input type="number" v-model.number="chambre.numeroChambre" class="form-control" id="numeroChambre"
                     required />
+                <small v-if="errors.numeroChambre" class="text-danger">{{ errors.numeroChambre }}</small>
             </div>
-
             <div class="mb-3">
                 <label for="prixChambre" class="form-label">Prix</label>
                 <input type="number" v-model.number="chambre.prix" class="form-control" id="prixChambre" required />
+                <small v-if="errors.prix" class="text-danger">{{ errors.prix }}</small>
             </div>
-
             <div class="mb-3">
                 <label for="typeChambre" class="form-label">Type de Chambre</label>
                 <select v-model="chambre.typeId" class="form-select" id="typeChambre" required>
@@ -26,6 +26,7 @@
                         {{ type.nom }}
                     </option>
                 </select>
+                <small v-if="errors.typeId" class="text-danger">{{ errors.typeId }}</small>
             </div>
 
             <div class="d-grid gap-2">
@@ -53,6 +54,7 @@ const chambre = ref({
 });
 
 const typesChambres = ref([]);
+const errors = ref({});
 
 onMounted(async () => {
     try {
@@ -65,8 +67,8 @@ onMounted(async () => {
     }
 });
 
-
 const submitModifications = async () => {
+    errors.value = {};
     try {
         const chambreId = route.params.id;
         await chambreStore.updateChambre(chambreId, {
@@ -77,11 +79,17 @@ const submitModifications = async () => {
         toast.success('Chambre modifiée avec succès !');
         router.push('/dashboard/chambres');
     } catch (error) {
-        console.error('Erreur lors de la modification de la chambre :', error.message);
-        toast.error('Erreur lors de la modification de la chambre.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Erreur lors de la modification de la chambre.');
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .form-container {

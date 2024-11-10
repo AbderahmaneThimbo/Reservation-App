@@ -39,36 +39,62 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useClientStore } from '@/stores/useClientStore';
 import { useToast } from 'vue-toastification';
+import Swal from 'sweetalert2';
 
 const clientStore = useClientStore();
 const toast = useToast();
+const clients = ref([]);
 
-onMounted(() => {
-    clientStore.loadClientData();
+onMounted(async () => {
+    try {
+        await clientStore.loadClientData();
+        clients.value = clientStore.clients;
+    } catch (error) {
+        console.error("Erreur lors du chargement des clients:", error.message);
+        toast.error("Une erreur est survenue lors du chargement des clients.");
+    }
 });
 
-const confirmRemoveClient = (id) => {
-    const confirmed = confirm('Voulez-vous vraiment supprimer ce client ?');
-    if (confirmed) {
-        clientStore.removeClient(id).then(() => {
-            toast.success('Client supprimé avec succès !');
-            clientStore.loadClientData();
-        }).catch(error => {
+const confirmRemoveClient = async (id) => {
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: 'Voulez-vous vraiment supprimer ce client ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    });
+    if (result.isConfirmed) {
+        try {
+            const response = await clientStore.removeClient(id);
+            if (response && response.data.warning) {
+                toast.warning(response.data.message);
+            } else {
+                toast.success('Client supprimé avec succès !');
+                await clientStore.loadClientData();
+                clients.value = clientStore.clients;
+            }
+        } catch (error) {
+            toast.error("Une erreur est survenue lors de la suppression.");
             console.error("Erreur lors de la suppression:", error.message);
-            toast.error('Une erreur est survenue lors de la suppression.');
-        });
+        }
     }
 };
-const clients = clientStore.clients; 
+
+
+
 </script>
 
 <style scoped>
 .client-management {
     margin: 0 auto;
     max-width: 1200px;
+    padding: 10px;
 }
 
 .top-bar {
@@ -142,5 +168,49 @@ h2 {
 .action-btn i {
     color: #6c757d;
     font-size: 18px;
+}
+
+@media (max-width: 768px) {
+
+    .client-management {
+        padding: 10px;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        margin-top: 20px;
+        align-items: flex-start;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .create-client {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* .client-table th:nth-child(2),
+    .client-table td:nth-child(2) {
+        display: none;
+    } */
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .action-btn i {
+        font-size: 16px;
+    }
+
+    .client-table th,
+    .client-table td {
+        padding: 10px;
+        font-size: 14px;
+    }
 }
 </style>

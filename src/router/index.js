@@ -24,6 +24,7 @@ import Calandar from '@/views/Calandar.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
 import ResetPassword from '@/components/ResetPassword.vue';
 import { useAuthStore } from '@/stores/authStore';
+import UpdateProfile from '@/components/updateProfile.vue';
 
 const routes = [
   {
@@ -165,6 +166,12 @@ const routes = [
         path: 'clients/detail/:id',
         name: 'detail-client',
         component: DetailClient,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'profil',
+        name: 'profil-utilisateur',
+        component: UpdateProfile,
         meta: { requiresAuth: true },
       },
     ],

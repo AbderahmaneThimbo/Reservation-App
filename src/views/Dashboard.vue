@@ -1,12 +1,9 @@
 <template>
   <div class="dashboard">
-    <nav :class="['sidebar', { collapsed: isSidebarCollapsed }]">
-      <div class="sidebar-header" @click="toggleSidebar">
-        <i class="fas fa-bars"></i>
-      </div>
-      <ul class="nav flex-column">
+    <nav :class="['sidebar', { collapsed: isSidebarCollapsed, visible: isSidebarVisible }]">
+      <ul class="nav flex-column nav-links mt-4">
         <li class="nav-item">
-          <router-link to="/dashboard" class="nav-link" active-class="active">
+          <router-link to="/dashboard" class="nav-link  mt-4">
             <i class="fas fa-home"></i>
             <span class="link-text" v-if="!isSidebarCollapsed">Dashboard</span>
           </router-link>
@@ -41,12 +38,23 @@
             <span class="link-text" v-if="!isSidebarCollapsed">Types de chambres</span>
           </router-link>
         </li>
+        <li class="nav-item">
+          <router-link to="/dashboard/profil" class="nav-link" active-class="active">
+            <i class="fa-solid fa-user"></i>
+            <span class="link-text" v-if="!isSidebarCollapsed">Profil</span>
+          </router-link>
+        </li>
+        <button class="btn btn-outline-light  toggle-btn" @click="toggleSidebar">
+          <i :class="isSidebarCollapsed ? 'fas fa-angle-right' : 'fas fa-angle-left'"></i>
+        </button>
       </ul>
     </nav>
 
     <div class="top-bar">
       <div class="company-info">
-        <h2>Dashboard</h2>
+        <div class="sidebar-header" @click="toggleSidebarVisibility">
+          <i class="fas fa-bars"></i>
+        </div>
       </div>
       <div class="user-info">
         <i class="fa-solid fa-circle-user user-icon"></i>
@@ -56,8 +64,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Content -->
     <div :class="['content', { expanded: isSidebarCollapsed }]">
       <router-view />
     </div>
@@ -68,28 +74,42 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
 const router = useRouter();
 
 const isSidebarCollapsed = ref(false);
+const isSidebarVisible = ref(false);
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 
-const logout = () => {
-  authStore.logout();
-  localStorage.removeItem('token');
-  router.push('/');
+const toggleSidebarVisibility = () => {
+  isSidebarVisible.value = !isSidebarVisible.value;
 };
 
-// onMounted(() => {
-//   if (!authStore.token) {
-//     router.push('/');
-//   }
-// });
+const logout = async () => {
+  const result = await Swal.fire({
+    title: 'Confirmer la déconnexion',
+    text: 'Voulez-vous vraiment vous déconnecter ?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Oui, déconnecter',
+    cancelButtonText: 'Annuler'
+  });
+
+  if (result.isConfirmed) {
+    authStore.logout();
+    localStorage.removeItem('token');
+    router.push('/');
+  }
+};
 </script>
+
 
 <style scoped>
 .dashboard {
@@ -107,7 +127,7 @@ const logout = () => {
   left: 0;
   height: 100vh;
   overflow: hidden;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, transform 0.3s ease;
 }
 
 .sidebar.collapsed {
@@ -115,10 +135,18 @@ const logout = () => {
 }
 
 .sidebar-header {
-  display: flex;
+  display: none;
   align-items: center;
   margin-bottom: 30px;
   cursor: pointer;
+}
+
+.toggle-btn {
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
 }
 
 .sidebar-header i {
@@ -217,21 +245,90 @@ const logout = () => {
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 80px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
   }
 
-  .nav-link .link-text {
-    display: none;
+  .sidebar.visible {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    display: flex;
+
   }
 
   .top-bar {
+    width: 100%;
+    left: 0;
+    padding: 10px;
+  }
+
+  .content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .sidebar.collapsed {
+    width: 80px;
+  }
+
+  .sidebar.visible {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    cursor: pointer;
+  }
+
+  .sidebar.collapsed+.top-bar {
     width: calc(100% - 80px);
     left: 80px;
   }
 
-  .content {
-    margin-left: 80px;
-    width: calc(100% - 80px);
+  .user-icon {
+    font-size: 30px;
+    margin-right: 10px;
+  }
+
+  .user-name h5 {
+    font-size: 16px;
+  }
+
+  .logout-icon {
+    font-size: 16px;
+    margin-left: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .user-info {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .user-icon {
+    font-size: 25px;
+    margin-right: 8px;
+  }
+
+  .user-name h5 {
+    font-size: 14px;
+  }
+
+  .logout-icon {
+    font-size: 14px;
+    margin-left: 5px;
   }
 }
 </style>

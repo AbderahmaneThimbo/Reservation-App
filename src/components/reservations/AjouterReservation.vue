@@ -6,7 +6,6 @@
         <h2 class="text-center mb-4">Ajouter une réservation</h2>
         <form @submit.prevent="submitReservation">
             <div class="row">
-                <!-- First Column -->
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="client" class="form-label">Client</label>
@@ -16,17 +15,22 @@
                                 {{ client.nom }}
                             </option>
                         </select>
+                        <small v-if="errors.clientId" class="text-danger">{{ errors.clientId }}</small>
                     </div>
+
                     <div class="mb-3">
                         <label for="dateDebut" class="form-label">Date de début</label>
                         <input type="date" v-model="newReservation.dateDebut" class="form-control" required />
+                        <small v-if="errors.dateDebut" class="text-danger">{{ errors.dateDebut }}</small>
                     </div>
+
                     <div class="mb-3">
                         <label for="status" class="form-label">Statut</label>
                         <select v-model="newReservation.status" class="form-control" required>
                             <option value="EN_ATTENTE">EN_ATTENTE</option>
                             <option value="CONFIRMEE">CONFIRMEE</option>
                         </select>
+                        <small v-if="errors.status" class="text-danger">{{ errors.status }}</small>
                     </div>
                 </div>
 
@@ -34,15 +38,18 @@
                     <div class="mb-3">
                         <label for="chambre" class="form-label">Chambre</label>
                         <select v-model="newReservation.chambreId" class="form-select" required>
-                            <option disabled value="">Sélectionnez une chambre</option>
-                            <option v-for="chambre in chambres" :key="chambre.id" :value="chambre.id">
-                                Chambre {{ chambre.numeroChambre }} - {{ chambre.prix }} €
+                            <option v-for="chambre in chambreStore.chambresDisponibles" :key="chambre.id"
+                                :value="chambre.id">
+                                Chambre {{ chambre.numeroChambre }} - {{ chambre.prix }} mru
                             </option>
+
                         </select>
+                        <small v-if="errors.chambreId" class="text-danger">{{ errors.chambreId }}</small>
                     </div>
                     <div class="mb-3">
                         <label for="dateFin" class="form-label">Date de fin</label>
                         <input type="date" v-model="newReservation.dateFin" class="form-control" required />
+                        <small v-if="errors.dateFin" class="text-danger">{{ errors.dateFin }}</small>
                     </div>
                 </div>
             </div>
@@ -50,6 +57,7 @@
         </form>
     </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -76,17 +84,20 @@ const newReservation = ref({
 
 const clients = ref([]);
 const chambres = ref([]);
+const errors = ref({});
 
 onMounted(async () => {
     try {
         clients.value = await clientStore.loadClientData();
-        chambres.value = await chambreStore.loadChambres();
+        await chambreStore.loadChambresDisponibles();
+        chambres.value = chambreStore.chambresDisponibles;
     } catch (error) {
         console.error("Erreur lors du chargement des données :", error.message);
     }
 });
 
 const submitReservation = async () => {
+    errors.value = {};
     try {
         await reservationStore.addReservation({
             clientId: newReservation.value.clientId,
@@ -105,11 +116,17 @@ const submitReservation = async () => {
         };
         router.push('/dashboard/reservations');
     } catch (error) {
-        console.error("Erreur lors de l'ajout de la réservation :", error.message);
-        toast.error("Une erreur est survenue lors de l'ajout.");
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error("Une erreur est survenue lors de l'ajout.");
+        }
     }
 };
 </script>
+
 
 <style scoped>
 .reservation-form-container {

@@ -33,7 +33,7 @@ import { useTypeChambreStore } from '@/stores/typeChambreStore';
 
 const route = useRoute();
 const chambres = ref([]);
-const typeChambre = ref(null);  // Initialise `typeChambre` à null par défaut
+const typeChambre = ref(null);
 const typeChambreStore = useTypeChambreStore();
 
 onMounted(async () => {
@@ -48,7 +48,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Ajoute des styles pour rendre les cartes plus attrayantes */
 .card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

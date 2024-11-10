@@ -60,7 +60,7 @@ export const useTypeChambreStore = defineStore("typeChambreStore", {
         if (response.status !== 200 && response.status !== 201) {
           throw new Error("L'ajout a échoué.");
         }
-        this.loadTypeChambres();
+       await this.loadTypeChambres();
       } catch (error) {
         console.error(
           "Erreur lors de l'ajout du type de chambre :",
@@ -73,18 +73,27 @@ export const useTypeChambreStore = defineStore("typeChambreStore", {
     async removeTypeChambre(id) {
       const authStore = useAuthStore();
       try {
-        await axios.delete(`http://localhost:3000/api/types/${id}`, {
+       const response = await axios.delete(`http://localhost:3000/api/types/${id}`, {
           headers: {
             Authorization: `Bearer ${authStore.token}` 
           }
         });
-        this.loadTypeChambres();
+        await this.loadTypeChambres();
+        return response;
       } catch (error) {
-        console.error(
-          "Erreur lors de la suppression du type de chambre :",
-          error.message
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.warning
+        ) {
+          return error.response;
+        } else {
+          console.error(
+            "Erreur lors de la suppression du type de la chambre :",
+            error.message
           );
           throw error;
+        }
       }
     },
 
@@ -103,7 +112,7 @@ export const useTypeChambreStore = defineStore("typeChambreStore", {
         if (response.status !== 200) {
           throw new Error("La mise à jour a échoué.");
         }
-        this.loadTypeChambres();
+    await this.loadTypeChambres();
       } catch (error) {
         console.error(
           "Erreur lors de la mise à jour du type de chambre :",

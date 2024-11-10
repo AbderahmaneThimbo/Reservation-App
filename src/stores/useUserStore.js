@@ -71,7 +71,7 @@ export const useUserStore = defineStore("userStore", {
         if (response.status !== 200 && response.status !== 201) {
           throw new Error("L'ajout a échoué.");
         }
-        this.loadUserData();
+        await this.loadUserData();
       } catch (error) {
         console.error(
           "Erreur lors de l'ajout de l'utilisateur :",
@@ -98,7 +98,7 @@ export const useUserStore = defineStore("userStore", {
           throw new Error("La mise à jour a échoué.");
         }
 
-        this.loadUserData();
+       await this.loadUserData();
       } catch (error) {
         console.error(
           "Erreur lors de la mise à jour de l'utilisateur :",
@@ -116,7 +116,7 @@ export const useUserStore = defineStore("userStore", {
             Authorization: `Bearer ${authStore.token}` 
           }
         });
-        this.loadUserData();
+      await this.loadUserData();
       } catch (error) {
         console.error(
           "Erreur lors de la suppression de l'utilisateur :",

@@ -4,16 +4,19 @@
             <router-link to="/dashboard/utilisateurs" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Modifier l'utilisateur</h2>
+
             <form @submit.prevent="updateUser" class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Modifier l'utilisateur</h2>
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
                     <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom" required />
+                    <small v-if="errors.nom" class="text-danger">{{ errors.nom }}</small>
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" v-model="email" class="form-control" placeholder="Entrez l'adresse email"
                         required />
+                    <small v-if="errors.email" class="text-danger">{{ errors.email }}</small>
                 </div>
                 <div class="form-group mb-4">
                     <label for="role" class="form-label">Rôle</label>
@@ -21,12 +24,14 @@
                         <option value="ADMIN">ADMIN</option>
                         <option value="GESTIONNAIRE">GESTIONNAIRE</option>
                     </select>
+                    <small v-if="errors.role" class="text-danger">{{ errors.role }}</small>
                 </div>
                 <button type="submit" class="btn w-100 py-2">Mettre à jour l'utilisateur</button>
             </form>
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -42,6 +47,7 @@ const toast = useToast();
 const nom = ref('');
 const email = ref('');
 const role = ref('GESTIONNAIRE');
+const errors = ref({});
 
 onMounted(() => {
     const userId = route.params.id;
@@ -53,6 +59,7 @@ onMounted(() => {
 });
 
 const updateUser = async () => {
+    errors.value = {};
     try {
         const userId = route.params.id;
         const updatedUser = {
@@ -65,13 +72,17 @@ const updateUser = async () => {
         toast.success('Utilisateur mis à jour avec succès !');
         router.push('/dashboard/utilisateurs');
     } catch (error) {
-        console.error('Erreur lors de la mise à jour de l\'utilisateur :', error.message);
-        toast.error('Une erreur est survenue lors de la mise à jour.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Une erreur est survenue lors de la mise à jour.');
+        }
     }
 };
-
-
 </script>
+
 
 
 

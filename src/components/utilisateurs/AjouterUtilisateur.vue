@@ -4,16 +4,19 @@
             <router-link to="/dashboard/utilisateurs" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left"></i>
             </router-link>
-            <h2 class="text-center mb-4">Ajouter un utilisateur</h2>
+
             <form @submit.prevent="addUser" class="p-4 shadow-sm bg-white rounded">
+                <h2 class="text-center mb-4">Ajouter un utilisateur</h2>
                 <div class="form-group mb-3">
                     <label for="name" class="form-label">Nom</label>
                     <input type="text" v-model="nom" class="form-control" placeholder="Entrez le nom" required />
+                    <small v-if="errors.nom" class="text-danger">{{ errors.nom }}</small>
                 </div>
                 <div class="form-group mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" v-model="email" class="form-control" placeholder="Entrez l'adresse email"
                         required />
+                    <small v-if="errors.email" class="text-danger">{{ errors.email }}</small>
                 </div>
                 <div class="form-group mb-4">
                     <label for="role" class="form-label">Rôle</label>
@@ -21,18 +24,20 @@
                         <option value="ADMIN">ADMIN</option>
                         <option value="GESTIONNAIRE">GESTIONNAIRE</option>
                     </select>
+                    <small v-if="errors.role" class="text-danger">{{ errors.role }}</small>
                 </div>
                 <div class="form-group mb-3">
                     <label for="password" class="form-label">Mot de passe</label>
                     <input type="password" v-model="password" class="form-control" placeholder="Entrez le mot de passe"
                         required />
+                    <small v-if="errors.password" class="text-danger">{{ errors.password }}</small>
                 </div>
-
                 <button type="submit" class="btn w-100 py-2">Ajouter l'utilisateur</button>
             </form>
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue';
@@ -47,10 +52,12 @@ const nom = ref('');
 const email = ref('');
 const password = ref('');
 const role = ref('GESTIONNAIRE');
+const errors = ref({});
 
 const userStore = useUserStore();
 
 const addUser = async () => {
+    errors.value = {};
     try {
         await userStore.addUser({
             nom: nom.value,
@@ -61,12 +68,17 @@ const addUser = async () => {
         toast.success('Utilisateur ajouté avec succès !');
         route.push("/dashboard/utilisateurs");
     } catch (error) {
-        console.error("Erreur lors de l'ajout de l'utilisateur :", error.message);
-        toast.error('Une erreur est survenue lors de l\'ajout.');
+        if (error.response && error.response.data && error.response.data.errors) {
+            error.response.data.errors.forEach(err => {
+                errors.value[err.path] = err.msg;
+            });
+        } else {
+            toast.error('Une erreur est survenue lors de l\'ajout.');
+        }
     }
 };
-
 </script>
+
 
 <style scoped>
 .form-container {

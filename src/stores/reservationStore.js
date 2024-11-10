@@ -69,7 +69,7 @@ export const useReservationStore = defineStore("reservationStore", {
               if (response.status !== 200 && response.status !== 201) {
                 throw new Error("L'ajout a échoué.");
               }
-              this.loadReservations();
+            await this.loadReservations();
           } catch (error) {
             console.error(
                 "Erreur lors de l'ajout du chambre :",
@@ -102,7 +102,7 @@ export const useReservationStore = defineStore("reservationStore", {
             Authorization: `Bearer ${authStore.token}`
           }
         });
-        this.loadReservations();
+       await this.loadReservations();
       } catch (error) {
         console.error(
           "Erreur lors de la suppression de la réservation :",
