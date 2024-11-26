@@ -1,10 +1,18 @@
 <template>
     <div class="chambre-management">
+        <loading :active.sync="isLoading" :can-cancel="false" color="#1abc9c"
+            background-color="rgba(255, 255, 255, 0.8)" />
+
         <div class="top-bar">
             <h2>Liste des chambres</h2>
             <router-link class="btn btn-success create-chambre" to="/dashboard/chambres/ajouter">
                 <i class="fas fa-plus"></i> Ajouter une chambre
             </router-link>
+        </div>
+
+        <div class="search-bar d-flex  mb-4">
+            <input type="text" v-model="searchQuery" class="form-control form-control-lg"
+                placeholder="Rechercher par Numéro de Chambre..." style="max-width: 400px;" />
         </div>
 
         <table class="chambre-table">
@@ -17,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(chambre, index) in chambres" :key="chambre.id">
+                <tr v-for="(chambre, index) in filteredChambres" :key="chambre.id">
                     <td>{{ chambre.numeroChambre }}</td>
                     <td>{{ chambre.prix }} mru</td>
                     <td>{{ chambre.type?.nom }}</td>
@@ -71,7 +79,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, computed } from 'vue';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 import { useChambreStore } from '@/stores/chambreStore';
 import { Modal } from 'bootstrap';
 import { useToast } from 'vue-toastification';
@@ -81,14 +91,30 @@ const chambres = ref([]);
 const chambreStore = useChambreStore();
 const selectedChambre = ref({});
 const toast = useToast();
+const searchQuery = ref("");
+const isLoading = ref(false);
+
 
 onMounted(async () => {
+    isLoading.value = true;
     try {
         chambres.value = await chambreStore.loadChambres();
     } catch (error) {
         console.error('Erreur lors du chargement des chambres :', error.message);
         toast.error('Une erreur est survenue lors du chargement des chambres.');
+    } finally {
+        isLoading.value = false;
     }
+});
+
+const filteredChambres = computed(() => {
+    if (!searchQuery.value) {
+        return chambres.value;
+    }
+    return chambres.value.filter(chambre => {
+        const numero = chambre.numeroChambre ? chambre.numeroChambre.toString().toLowerCase() : "";
+        return numero.includes(searchQuery.value.toLowerCase());
+    });
 });
 
 const removeChambre = async (id) => {
@@ -115,6 +141,8 @@ const removeChambre = async (id) => {
         } catch (error) {
             toast.error('Une erreur est survenue lors de la suppression.');
             console.error('Erreur lors de la suppression :', error.message);
+        } finally {
+            isLoading.value = false;
         }
     }
 };

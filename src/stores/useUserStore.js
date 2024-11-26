@@ -47,7 +47,7 @@ export const useUserStore = defineStore("userStore", {
           email: userData.email,
           role: userData.role
         };
-        console.log("Données utilisateur récupérées:", this.user);
+        // console.log("Données utilisateur récupérées:", this.user);
       } catch (error) {
         console.error(
           "Erreur lors du chargement de l'utilisateur :",

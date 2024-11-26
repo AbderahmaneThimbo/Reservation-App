@@ -1,10 +1,18 @@
 <template>
     <div class="client-management">
+        <loading :active.sync="isLoading" :can-cancel="false" color="#1abc9c"
+            background-color="rgba(255, 255, 255, 0.8)" />
+
         <div class="top-bar">
             <h2>Liste des clients</h2>
             <router-link class="btn btn-success create-client" to="/dashboard/clients/ajouter">
                 <i class="fas fa-user-plus"></i> Ajouter un client
             </router-link>
+        </div>
+
+        <div class="search-bar d-flex  mb-4">
+            <input type="text" v-model="searchQuery" class="form-control form-control-lg"
+                placeholder="Rechercher par telephone..." style="max-width: 400px;" />
         </div>
 
         <table class="client-table">
@@ -17,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(client, index) in clients" :key="client.id">
+                <tr v-for="(client, index) in filteredClients" :key="client.id">
                     <td>{{ client.nom }}</td>
                     <td>{{ client.prenom }}</td>
                     <td>{{ client.telephone }}</td>
@@ -39,7 +47,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 import { useClientStore } from '@/stores/useClientStore';
 import { useToast } from 'vue-toastification';
 import Swal from 'sweetalert2';
@@ -47,15 +57,29 @@ import Swal from 'sweetalert2';
 const clientStore = useClientStore();
 const toast = useToast();
 const clients = ref([]);
+const searchQuery = ref("");
+const isLoading = ref(false);
 
 onMounted(async () => {
+    isLoading.value = true;
     try {
         await clientStore.loadClientData();
         clients.value = clientStore.clients;
     } catch (error) {
         console.error("Erreur lors du chargement des clients:", error.message);
         toast.error("Une erreur est survenue lors du chargement des clients.");
+    } finally {
+        isLoading.value = false;
     }
+});
+
+const filteredClients = computed(() => {
+    if (!searchQuery.value) {
+        return clients.value;
+    }
+    return clients.value.filter(client =>
+        client.telephone.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
 });
 
 const confirmRemoveClient = async (id) => {
@@ -82,6 +106,8 @@ const confirmRemoveClient = async (id) => {
         } catch (error) {
             toast.error("Une erreur est survenue lors de la suppression.");
             console.error("Erreur lors de la suppression:", error.message);
+        } finally {
+            isLoading.value = false;
         }
     }
 };

@@ -7,12 +7,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
+import "vue-loading-overlay/dist/css/index.css";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faUserSecret } from "@fortawesome/free-solid-svg-icons";
 import "@fortawesome/fontawesome-free/css/all.css";
-
+// import { dom } from "@fortawesome/fontawesome-svg-core";
 const app = createApp(App);
 
 const pinia = createPinia();
@@ -25,6 +26,7 @@ app.use(Toast, {
 });
 
 library.add(faUserSecret);
+// dom.watch()
 app.component("font-awesome-icon", FontAwesomeIcon);
 
 app.use(pinia);

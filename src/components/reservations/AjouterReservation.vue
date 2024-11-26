@@ -27,7 +27,7 @@
                     <div class="mb-3">
                         <label for="status" class="form-label">Statut</label>
                         <select v-model="newReservation.status" class="form-control" required>
-                            <option value="EN_ATTENTE">EN_ATTENTE</option>
+                            <option value="EN_ATTENTE">EN ATTENTE</option>
                             <option value="CONFIRMEE">CONFIRMEE</option>
                         </select>
                         <small v-if="errors.status" class="text-danger">{{ errors.status }}</small>

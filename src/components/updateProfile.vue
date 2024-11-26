@@ -10,23 +10,26 @@
             <form @submit.prevent="updateProfile">
                 <div class="form-group mb-4">
                     <label for="nom">Nom</label>
-                    <input type="text" v-model="nom" class="form-control form-control-lg" id="nom"
+                    <input type="text" v-model="user.nom" class="form-control form-control-lg" id="nom"
                         placeholder="Entrer votre nom" required />
                 </div>
 
                 <div class="form-group mb-4">
                     <label for="email">Email</label>
-                    <input type="email" v-model="email" class="form-control form-control-lg" id="email"
+                    <input type="email" v-model="user.email" class="form-control form-control-lg" id="email"
                         placeholder="Entrer votre email" required />
                 </div>
 
-                <div class="form-group mb-4 position-relative">
-                    <label for="password">Mot de passe</label>
-                    <input :type="showPassword ? 'text' : 'password'" v-model="password"
-                        class="form-control form-control-lg" id="password" placeholder="Nouveau mot de passe" />
-                    <small class="text-muted">Laisser vide si vous ne souhaitez pas changer le mot de passe.</small>
-                    <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" @click="togglePasswordVisibility"
-                        style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer;"></i>
+                <div class="form-group mb-4">
+                    <label for="currentPassword">Mot de passe actuel</label>
+                    <input type="password" v-model="currentPassword" class="form-control form-control-lg"
+                        id="currentPassword" placeholder="Entrer votre mot de passe actuel" />
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="newPassword">Nouveau mot de passe</label>
+                    <input type="password" v-model="newPassword" class="form-control form-control-lg" id="newPassword"
+                        placeholder="Entrer votre nouveau mot de passe" />
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg w-100">Mettre à jour le profil</button>
@@ -35,36 +38,60 @@
     </div>
 </template>
 
+
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useAuthStore } from "@/stores/authStore";
+import { useUserStore } from '@/stores/useUserStore';
 import { useToast } from "vue-toastification";
 
 const authStore = useAuthStore();
+const userStore = useUserStore();
 const toast = useToast();
 
-const nom = ref(authStore.user.nom);
-const email = ref(authStore.user.email);
-const password = ref("");
-const showPassword = ref(false);
+const user = ref({});
+const userId = authStore.user.id;
+const currentPassword = ref("");
+const newPassword = ref("");
+onMounted(async () => {
+    await userStore.loadUserById(userId)
+    user.value = userStore.user
+    console.log("user", user.value);
+});
+
 
 const updateProfile = async () => {
     try {
-        await authStore.updateProfile({
-            nom: nom.value,
-            email: email.value,
-            password: password.value,
-        });
+        const payload = {
+            nom: user.value.nom,
+            email: user.value.email,
+        };
+
+        if (currentPassword.value && newPassword.value) {
+            payload.currentPassword = currentPassword.value;
+            payload.newPassword = newPassword.value;
+        }
+
+        await authStore.updateProfile(payload);
+
         toast.success("Profil mis à jour avec succès !");
+
+        currentPassword.value = "";
+        newPassword.value = "";
     } catch (error) {
         console.error("Erreur lors de la mise à jour du profil :", error);
+
+        if (error.response && error.response.data && error.response.data.message) {
+            toast.error(error.response.data.message);
+        } else {
+            toast.error("Une erreur est survenue lors de la mise à jour.");
+        }
     }
 };
-
-const togglePasswordVisibility = () => {
-    showPassword.value = !showPassword.value;
-};
 </script>
+
+
+
 
 <style scoped>
 .card {

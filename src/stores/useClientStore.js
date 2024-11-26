@@ -5,6 +5,7 @@ import { useAuthStore } from "./authStore";
 export const useClientStore = defineStore("clientStore", {
   state: () => ({
     clients: [],
+    reservation: [],
     client: {
       nom: "",
       prenom: "",

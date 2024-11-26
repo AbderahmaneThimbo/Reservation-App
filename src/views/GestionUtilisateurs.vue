@@ -1,10 +1,18 @@
 <template>
     <div class="user-management">
+        <loading :active.sync="isLoading" :can-cancel="false" color="#1abc9c"
+            background-color="rgba(255, 255, 255, 0.8)" />
+
         <div class="top-bar">
             <h2>Liste des utilisateurs</h2>
             <router-link class="btn btn-success create-user" to="/dashboard/utilisateurs/ajouter">
                 <i class="fas fa-user-plus"></i> Ajouter un utilisateur
             </router-link>
+        </div>
+
+        <div class="search-bar d-flex mb-4">
+            <input type="text" v-model="searchQuery" class="form-control form-control-lg"
+                placeholder="Rechercher par email..." style="max-width: 400px;" />
         </div>
 
         <table class="user-table">
@@ -13,14 +21,20 @@
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Rôle</th>
+                    <th>Statut</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(user, index) in users" :key="user.id">
+                <tr v-for="(user, index) in filteredUsers" :key="user.id">
                     <td>{{ user.nom }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.role }}</td>
+                    <td class="status">
+                        <i :class="user.status ? 'fas fa-check-circle active-status' : 'fas fa-ban blocked-status'"
+                            :title="user.status ? 'Actif' : 'Bloqué'" @click="toggleUserStatus(user)"></i>
+                    </td>
+
                     <td class="actions">
                         <router-link :to="`/dashboard/utilisateurs/detail/${user.id}`" class="action-btn">
                             <i class="fas fa-eye"></i>
@@ -39,24 +53,39 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 import { useUserStore } from '@/stores/useUserStore';
 import { useToast } from 'vue-toastification';
 import Swal from 'sweetalert2';
 
-
 const userStore = useUserStore();
 const toast = useToast();
 const users = ref([]);
+const searchQuery = ref("");
+const isLoading = ref(false);
 
 onMounted(async () => {
+    isLoading.value = true;
     try {
         await userStore.loadUserData();
         users.value = userStore.users;
     } catch (error) {
         console.error("Erreur lors du chargement des utilisateurs:", error.message);
         toast.error("Une erreur est survenue lors du chargement des utilisateurs.");
+    } finally {
+        isLoading.value = false;
     }
+});
+
+const filteredUsers = computed(() => {
+    if (!searchQuery.value) {
+        return users.value;
+    }
+    return users.value.filter(user =>
+        user.email.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
 });
 
 const confirmRemoveUser = async (id) => {
@@ -71,6 +100,7 @@ const confirmRemoveUser = async (id) => {
         cancelButtonText: 'Annuler'
     });
     if (result.isConfirmed) {
+        isLoading.value = true;
         try {
             await userStore.removeUser(id);
             toast.success('Utilisateur supprimé avec succès !');
@@ -79,14 +109,33 @@ const confirmRemoveUser = async (id) => {
         } catch (error) {
             console.error("Erreur lors de la suppression:", error.message);
             toast.error('Une erreur est survenue lors de la suppression.');
+        } finally {
+            isLoading.value = false;
         }
     }
 };
 
+const toggleUserStatus = async (user) => {
+    try {
+        const updatedStatus = !user.status;
+        await userStore.updateUser(user.id, {
+            nom: user.nom,
+            email: user.email,
+            role: user.role,
+            status: updatedStatus
+        });
 
+        user.status = updatedStatus;
 
+        toast.success(
+            `Le statut de l'utilisateur ${user.nom} a été mis à jour avec succès !`
+        );
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du statut :", error.message);
+        toast.error("Une erreur est survenue lors de la mise à jour du statut.");
+    }
+};
 </script>
-
 
 
 <style scoped>
@@ -153,9 +202,23 @@ h2 {
     background-color: #f1f1f1;
 }
 
+.status i {
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.active-status {
+    color: #28a745;
+}
+
+.blocked-status {
+    color: #dc3545;
+}
+
 .actions {
     text-align: center;
 }
+
 
 .action-btn {
     background-color: transparent;
@@ -169,15 +232,12 @@ h2 {
     font-size: 18px;
 }
 
-/* Media Queries pour rendre la page responsive */
 @media (max-width: 768px) {
 
-    /* Réduire la taille du conteneur et ajuster les marges */
     .user-management {
         padding: 5px;
     }
 
-    /* Empiler les éléments de la top-bar verticalement sur mobile */
     .top-bar {
         flex-direction: column;
         align-items: flex-start;
@@ -199,19 +259,16 @@ h2 {
         display: none;
     }
 
-    /* Réduire les marges et tailles des éléments de la table */
     .user-table th,
     .user-table td {
         padding: 10px;
         font-size: 14px;
     }
 
-    /* Réduire la taille des icônes d'action sur mobile */
     .action-btn i {
         font-size: 16px;
     }
 
-    /* Assurer un bon alignement des actions */
     .actions {
         display: flex;
         justify-content: center;

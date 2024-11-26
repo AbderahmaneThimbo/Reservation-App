@@ -8,7 +8,7 @@
             <span class="link-text" v-if="!isSidebarCollapsed">Dashboard</span>
           </router-link>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" v-if="role == 'ADMIN'">
           <router-link to="/dashboard/utilisateurs" class="nav-link" active-class="active">
             <i class="fas fa-users"></i>
             <span class="link-text" v-if="!isSidebarCollapsed">Utilisateurs</span>
@@ -39,7 +39,7 @@
           </router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/dashboard/profil" class="nav-link" active-class="active">
+          <router-link :to="`/dashboard/profil/${id}`" class="nav-link" active-class="active">
             <i class="fa-solid fa-user"></i>
             <span class="link-text" v-if="!isSidebarCollapsed">Profil</span>
           </router-link>
@@ -77,6 +77,13 @@ import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 
 const authStore = useAuthStore();
+const role = authStore.user.role
+console.log(authStore.user);
+
+
+const id = authStore.user.id
+console.log(id);
+
 const router = useRouter();
 
 const isSidebarCollapsed = ref(false);

@@ -25,6 +25,7 @@ import ForgetPassword from '@/components/ForgetPassword.vue';
 import ResetPassword from '@/components/ResetPassword.vue';
 import { useAuthStore } from '@/stores/authStore';
 import UpdateProfile from '@/components/updateProfile.vue';
+import Recu from '@/components/reservations/Recu.vue';
 
 const routes = [
   {
@@ -109,6 +110,12 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: 'reservations/recu/:id',
+        name: 'recu',
+        component: Recu,
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'types-chambres',
         name: 'gestion-types-chambres',
         component: GestionTypesChambres,
@@ -169,7 +176,7 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'profil',
+        path: 'profil/:id',
         name: 'profil-utilisateur',
         component: UpdateProfile,
         meta: { requiresAuth: true },

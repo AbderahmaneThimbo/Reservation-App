@@ -1,7 +1,6 @@
 <template>
     <div class="container d-flex justify-content-center align-items-center vh-100">
         <div class="card p-4 shadow-lg" style="width: 400px; border-radius: 10px;">
-            <!-- Logo -->
             <div class="text-center mb-4">
                 <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
             </div>
@@ -15,7 +14,7 @@
                         placeholder="Entrer votre email" required />
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg w-100">Envoyer le lien de réinitialisation</button>
-                <!-- <p v-if="authStore.emailMessage" class="text-success mt-3 text-center">{{ authStore.emailMessage }}</p> -->
+                <p v-if="authStore.emailMessage" class="text-success mt-3 text-center">{{ authStore.emailMessage }}</p>
             </form>
         </div>
     </div>

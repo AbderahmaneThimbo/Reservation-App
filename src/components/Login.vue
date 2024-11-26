@@ -16,8 +16,17 @@
         </div>
         <div class="form-group mb-4">
           <label for="password">Mot de passe</label>
-          <input type="password" v-model="password" class="form-control form-control-lg" id="password"
-            placeholder="Entrer votre mot de passe" required />
+          <div class="input-group">
+            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="form-control form-control-lg"
+              id="password" placeholder="Entrer votre mot de passe" required />
+            <div class="input-group-append">
+              <span class="input-group-text" @click="showPassword = !showPassword" style="cursor: pointer;">
+                <i :class="showPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
+              </span>
+            </div>
+          </div>
+
+
           <small v-if="errors.password" class="text-danger">{{ errors.password }}</small>
 
         </div>
@@ -37,26 +46,29 @@
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
+import { useToast } from "vue-toastification";
 
 const email = ref('');
 const password = ref('');
+const showPassword = ref(false);
 const errorMessage = ref('');
 const errors = ref({});
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 const login = async () => {
   errors.value = {};
+  errorMessage.value = '';
   try {
     await authStore.login(email.value, password.value);
+    toast.success('Connexion avec succès !');
     router.push('/dashboard');
   } catch (error) {
-    if (error.response && error.response.data && error.response.data.errors) {
-      error.response.data.errors.forEach(err => {
-        errors.value[err.path] = err.msg;
-      });
+    if (error.response && error.response.data && error.response.data.message) {
+      toast.error(error.response.data.message);
     } else {
-      errorMessage.value = "Erreur lors de la connexion. Veuillez vérifier vos informations.";
+      toast.error("Erreur lors de la connexion. Veuillez vérifier vos informations.");
     }
   }
 };

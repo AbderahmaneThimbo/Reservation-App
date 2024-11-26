@@ -93,6 +93,39 @@ export const useReservationStore = defineStore("reservationStore", {
         throw error;
       }
     },
+    async downloadReservationReceipt(id) {
+      const authStore = useAuthStore();
+      try {
+        console.log("Téléchargement en cours pour la réservation ID:", id);
+        const response = await axios.get(`http://localhost:3000/api/reservations/${id}/recu`, {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+          },
+          responseType: "blob", // Indispensable pour les fichiers binaires
+        });
+    
+        // Vérifiez si le fichier est bien récupéré
+        if (!response.data) {
+          console.error("Le fichier PDF n'a pas été reçu.");
+          return;
+        }
+    
+        
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `recu_reservation_${id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log("Reçu téléchargé avec succès !");
+      } catch (error) {
+        console.error("Erreur lors du téléchargement du reçu :", error.message);
+        throw error;
+      }
+    },
+    
 
     async removeReservation(id) {
       const authStore = useAuthStore();

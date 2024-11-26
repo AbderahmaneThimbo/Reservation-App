@@ -1,5 +1,8 @@
 <template>
     <div class="reservation-management">
+        <loading :active.sync="isLoading" :can-cancel="false" color="#1abc9c"
+            background-color="rgba(255, 255, 255, 0.8)" />
+
         <div class="top-bar">
             <h2>Liste des réservations</h2>
             <router-link class="btn btn-success create-client" to="/dashboard/reservations/ajouter">
@@ -34,6 +37,10 @@
                     </td>
 
                     <td class="actions">
+                        <button class="action-btn" @click="viewReceipt(reservation.id)">
+                            <i class="fas fa-file-alt"></i>
+                        </button>
+
                         <router-link :to="`/dashboard/reservations/detail/${reservation.id}`" class="action-btn">
                             <i class="fas fa-eye"></i>
                         </router-link>
@@ -53,21 +60,29 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/css/index.css';
 import { useReservationStore } from '@/stores/reservationStore';
 import { useToast } from 'vue-toastification';
 import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
 const reservationStore = useReservationStore();
 const toast = useToast();
 const reservations = ref([]);
+const isLoading = ref(false);
+const router = useRouter();
 
 onMounted(async () => {
+    isLoading.value = true;
     try {
         await reservationStore.loadReservations();
         reservations.value = reservationStore.reservations;
     } catch (error) {
         console.error("Erreur lors du chargement des réservations :", error.message);
         toast.error("Une erreur est survenue lors du chargement des réservations.");
+    } finally {
+        isLoading.value = false;
     }
 });
 
@@ -81,6 +96,12 @@ const updateStatus = async (reservation) => {
     }
 };
 
+
+const viewReceipt = (id) => {
+    router.push(`/dashboard/reservations/recu/${id}`);
+};
+
+
 const confirmRemoveReservation = async (id) => {
     const result = await Swal.fire({
         title: 'Êtes-vous sûr ?',
@@ -93,6 +114,7 @@ const confirmRemoveReservation = async (id) => {
         cancelButtonText: 'Annuler'
     });
     if (result.isConfirmed) {
+        isLoading.value = true;
         try {
             await reservationStore.removeReservation(id);
             toast.success('Réservation supprimée avec succès !');
@@ -101,6 +123,8 @@ const confirmRemoveReservation = async (id) => {
         } catch (error) {
             console.error("Erreur lors de la suppression :", error.message);
             toast.error('Une erreur est survenue lors de la suppression.');
+        } finally {
+            isLoading.value = false;
         }
     }
 };

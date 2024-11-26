@@ -36,7 +36,7 @@ export const useAuthStore = defineStore("authStore", {
     },
     async updateProfile(updatedProfile) {
       try {
-        const response = await axios.put(
+        const response = await axios.post(
           "http://localhost:3000/api/profil",
           updatedProfile,
           {
