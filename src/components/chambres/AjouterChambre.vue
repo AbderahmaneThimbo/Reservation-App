@@ -16,8 +16,8 @@
             </div>
             <div class="mb-3">
                 <label for="prixChambre" class="form-label">Prix</label>
-                <input type="number" v-model="newChambre.prix" class="form-control" id="prixChambre"
-                    placeholder="Entrez le prix de la chambre" required />
+                <input type="text" v-model="newChambre.prix" class="form-control" id="prixChambre"
+                    placeholder="Entrez le prix de la chambre" required @input="formatPrice" />
                 <small v-if="errors.prix" class="text-danger">{{ errors.prix }}</small>
             </div>
 
@@ -50,6 +50,11 @@ const chambreStore = useChambreStore();
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const formatPrice = () => {
+    newChambre.value.prix = newChambre.value.prix
+        .replace(/[^\d.]/g, '')
+        .replace(/^(\d*\.\d{0,2}).*$/, '$1');
+};
 
 const newChambre = ref({
     numeroChambre: '',
@@ -73,7 +78,7 @@ const submitChambre = async () => {
     try {
         await chambreStore.addChambre({
             numeroChambre: Number(newChambre.value.numeroChambre),
-            prix: Number(newChambre.value.prix),
+            prix: parseFloat(newChambre.value.prix),
             typeId: newChambre.value.typeId
         });
         toast.success('Chambre ajoutée avec succès !');
